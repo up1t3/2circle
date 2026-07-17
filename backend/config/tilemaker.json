@@ -1,0 +1,47 @@
+{
+  "//": "2circle tilemaker config — defines which layers we emit and their zoom ranges.",
+  "//layers": "Layer names MUST match what the client's MapStyleProvider reads: water, landcover, transportation, boundary, place. The Lua script in lua/2circle-process.lua fills these layers.",
+
+  "settings": {
+    "minzoom": 6,
+    "maxzoom": 14,
+    "basezoom": 14,
+    "include_ids": false,
+    "compress": "gzip",
+    "compress_level": 9,
+    "simplify_to": 1.0
+  },
+
+  "layers": {
+    "water": {
+      "minzoom": 6,
+      "maxzoom": 14,
+      "simplify_below": 13,
+      "simplify_level": 1.0,
+      "simplify_ratio": 2.0,
+      "source": "water-all"
+    },
+    "landcover": {
+      "minzoom": 7,
+      "maxzoom": 14,
+      "source": "landcover"
+    },
+    "transportation": {
+      "minzoom": 6,
+      "maxzoom": 14,
+      "simplify_below": 12,
+      "simplify_level": 2.0,
+      "source": "highway"
+    },
+    "boundary": {
+      "minzoom": 6,
+      "maxzoom": 14,
+      "source": "admin-boundary"
+    },
+    "place": {
+      "minzoom": 6,
+      "maxzoom": 14,
+      "source": "place"
+    }
+  }
+}
