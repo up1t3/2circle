@@ -40,14 +40,15 @@ object DatabaseModule {
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {
-                    // Hardening: enforce foreign keys (CASCADE deletes on TrackEntity etc.)
-                    // and WAL even if the builder's journalMode was overridden by a migration.
-                    db.execSQL("PRAGMA foreign_keys = ON")
-                    db.execSQL("PRAGMA journal_mode = WAL")
-                    // SYNCHRONOUS=NORMAL is the safe companion to WAL: appends are durable
-                    // across crashes; a power loss can lose the last transaction, which is
-                    // acceptable for telemetry (the rider resumes from the last flush).
-                    db.execSQL("PRAGMA synchronous = NORMAL")
+                    // Hardening pragmas. Note: `execSQL` accepts only statements that do
+                    // not return a result set. PRAGMA journal_mode (the writable form
+                    // `journal_mode=WAL`) returns the new mode as a row on modern SQLite,
+                    // so it must go through a Cursor-bearing call. PRAGMA foreign_keys
+                    // and PRAGMA synchronous do not return data and execSQL works for them.
+                    db.execSQL("PRAGMA foreign_keys=ON")
+                    db.execSQL("PRAGMA synchronous=NORMAL")
+                    // Force WAL even if a migration flipped it. Consume the result cursor.
+                    db.query("PRAGMA journal_mode=WAL").use { c -> if (c.moveToFirst()) c.getString(0) }
                 }
             })
             .fallbackToDestructiveMigration(dropAllTables = true)
