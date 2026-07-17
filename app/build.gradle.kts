@@ -23,6 +23,10 @@ android {
         // resConfigs also strips unused locales bundled by transitive deps (Hilt, Room,
         // Compose) so the APK doesn't carry dozens of languages we don't translate.
         resourceConfigurations += listOf("en", "ru", "es")
+
+        // Instrumentation tests need a Hilt-aware test runner to inject the
+        // @HiltAndroidTest-annotated Application.
+        testInstrumentationRunner = "com.twocircle.bike.HiltTestRunner"
     }
 
     buildTypes {
@@ -97,4 +101,19 @@ dependencies {
     implementation(libs.timber)
 
     testImplementation(libs.junit)
+
+    // Instrumentation (androidTest) — runs on device via connectedAndroidTest.
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    debugImplementation(libs.compose.ui.test.manifest)
+    // Hilt testing: add the testing artifact + its KSP processor for test-only modules.
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
 }
