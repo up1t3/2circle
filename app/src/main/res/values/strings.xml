@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Default strings = English. Android falls back to `values/` for any locale without
+  a specific `values-<lang>/` directory, so English-as-default covers the long tail
+  (fr, de, zh, etc.) instead of showing Russian to a user who reads neither.
+
+  Supported UI locales in v1: en (default), ru, es.
+-->
+<resources>
+    <string name="app_name">2circle</string>
+
+    <!-- Top-level destinations -->
+    <string name="nav_map">Map</string>
+    <string name="nav_routes">Routes</string>
+    <string name="nav_tracks">Tracks</string>
+    <string name="nav_regions">Regions</string>
+
+    <!-- Permissions -->
+    <string name="perm_location_rationale">
+        2circle needs location access to record your ride and compute live ETA.
+        Grant access to show your position and measure distance.
+    </string>
+    <string name="perm_location_action">Grant access</string>
+    <string name="perm_location_settings">Open settings</string>
+    <string name="perm_background_rationale">
+        To keep recording while the screen is off, allow \"Allow all the time\".
+        We only use this during an active ride.
+    </string>
+    <string name="perm_notifications_rationale">
+        Allow notifications so the persistent recording notification can stay visible.
+    </string>
+
+    <!-- Attribution -->
+    <string name="attrib_osm">© OpenStreetMap contributors</string>
+    <string name="attrib_dem">Elevation data: Copernicus DEM (GLO-30)</string>
+</resources>

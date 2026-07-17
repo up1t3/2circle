@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Spanish (es). -->
+<resources>
+    <string name="app_name">2circle</string>
+
+    <!-- Top-level destinations -->
+    <string name="nav_map">Mapa</string>
+    <string name="nav_routes">Rutas</string>
+    <string name="nav_tracks">Recorridos</string>
+    <string name="nav_regions">Regiones</string>
+
+    <!-- Permissions -->
+    <string name="perm_location_rationale">
+        2circle necesita acceso a la ubicación para registrar tu ruta y calcular el ETA en vivo.
+        Concede acceso para mostrar tu posición y medir la distancia.
+    </string>
+    <string name="perm_location_action">Conceder acceso</string>
+    <string name="perm_location_settings">Abrir ajustes</string>
+    <string name="perm_background_rationale">
+        Para seguir registrando con la pantalla apagada, elige \"Permitir siempre\".
+        Solo lo usamos durante una ruta activa.
+    </string>
+    <string name="perm_notifications_rationale">
+        Concede permiso de notificaciones para que el aviso de grabación sea persistente.
+    </string>
+
+    <!-- Attribution -->
+    <string name="attrib_osm">© Colaboradores de OpenStreetMap</string>
+    <string name="attrib_dem">Datos de elevación: Copernicus DEM (GLO-30)</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Russian (ru). Default locale for the project author. -->
+<resources>
+    <string name="app_name">2circle</string>
+
+    <!-- Top-level destinations -->
+    <string name="nav_map">Карта</string>
+    <string name="nav_routes">Маршруты</string>
+    <string name="nav_tracks">Треки</string>
+    <string name="nav_regions">Регионы</string>
+
+    <!-- Permissions -->
+    <string name="perm_location_rationale">
+        Для записи трека и живого ETA нужен доступ к геолокации.
+        Разрешите доступ — будем показывать вашу позицию и считать дистанцию.
+    </string>
+    <string name="perm_location_action">Предоставить доступ</string>
+    <string name="perm_location_settings">Открыть настройки</string>
+    <string name="perm_background_rationale">
+        Чтобы запись трека продолжалась при выключенном экране,
+        предоставьте «Разрешать всегда». Мы используем его только во время поездки.
+    </string>
+    <string name="perm_notifications_rationale">
+        Для постоянного уведомления о записи трека разрешите уведомления.
+    </string>
+
+    <!-- Attribution -->
+    <string name="attrib_osm">© Участники OpenStreetMap</string>
+    <string name="attrib_dem">Цифровая модель рельефа: Copernicus DEM (GLO-30)</string>
+</resources>

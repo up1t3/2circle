@@ -1,0 +1,31 @@
+# Build artifacts
+build/
+**/build/
+.gradle/
+.kotlin/
+local.properties
+
+# ZCode session storage (CLI working state, not project source)
+.zcode/
+
+# IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Native crashes / profiling
+captures/
+*.hprof
+
+# Keystore (never commit)
+*.jks
+*.keystore
+keystore.properties
+
+# Logs
+*.log

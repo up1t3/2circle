@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Two circles — the brand glyph. Bicycle wheels, abstracted. -->
+    <path
+        android:strokeColor="#66BB6A"
+        android:strokeWidth="4"
+        android:strokeAlpha="0.95"
+        android:fillColor="#00000000"
+        android:pathData="M36,54 m-16,0 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+    <path
+        android:strokeColor="#29B6F6"
+        android:strokeWidth="4"
+        android:strokeAlpha="0.95"
+        android:fillColor="#00000000"
+        android:pathData="M72,54 m-16,0 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+    <!-- Connecting bar between the two circles. -->
+    <path
+        android:strokeColor="#E6E6E6"
+        android:strokeWidth="3"
+        android:pathData="M40,54 L68,54" />
+</vector>
