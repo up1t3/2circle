@@ -48,9 +48,19 @@ import java.time.Duration
  */
 @Composable
 fun RouteBuilderScreen(
+    pendingWaypoint: Pair<com.twocircle.bike.domain.model.Coord, String?>? = null,
     modifier: Modifier = Modifier,
     viewModel: RouteBuilderViewModel = hiltViewModel(),
 ) {
+    // Consume a pending waypoint pushed from another screen (e.g. search → "To route").
+    // LaunchedEffect with the coord identity as key ensures we add it once even across
+    // recompositions; the VM dedupes via fresh WaypointId generation.
+    androidx.compose.runtime.LaunchedEffect(pendingWaypoint?.first?.lat, pendingWaypoint?.first?.lon) {
+        pendingWaypoint?.let { (coord, name) ->
+            viewModel.addWaypointSearch(coord, name)
+        }
+    }
+
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {

@@ -75,13 +75,53 @@ fun TwoCircleNavHost() {
             composable("search") {
                 com.twocircle.bike.feature.search.screen.SearchScreen(
                     onResultSelected = { result ->
-                        // For v1: return to map. Step 5 wires this into the Route Builder.
+                        // Show the result on the map and return.
                         nav.popBackStack()
+                    },
+                    onAddToRoute = { result ->
+                        // Navigate to the route builder with the place pre-filled as a waypoint.
+                        // Encoded as query args so the route builder reads them once and consumes.
+                        val lat = result.hit.lat
+                        val lon = result.hit.lon
+                        val name = java.net.URLEncoder.encode(result.hit.name, "UTF-8")
+                        nav.navigate("routes?addLat=$lat&addLon=$lon&addName=$name") {
+                            popUpTo(TopLevel.MAP.route)
+                            launchSingleTop = true
+                        }
                     },
                 )
             }
             composable("ride") {
                 com.twocircle.bike.feature.tracking.screen.TrackingScreen()
+            }
+            composable(
+                route = "${TopLevel.ROUTES.route}?addLat={addLat}&addLon={addLon}&addName={addName}",
+                arguments = listOf(
+                    androidx.navigation.navArgument("addLat") {
+                        type = androidx.navigation.NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                    androidx.navigation.navArgument("addLon") {
+                        type = androidx.navigation.NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                    androidx.navigation.navArgument("addName") {
+                        type = androidx.navigation.NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
+            ) { entry ->
+                val addLat = entry.arguments?.getString("addLat")?.toDoubleOrNull()
+                val addLon = entry.arguments?.getString("addLon")?.toDoubleOrNull()
+                val addName = entry.arguments?.getString("addName")
+                com.twocircle.bike.feature.routing.screen.RouteBuilderScreen(
+                    pendingWaypoint = if (addLat != null && addLon != null) {
+                        com.twocircle.bike.domain.model.Coord(addLat, addLon) to addName
+                    } else null,
+                )
             }
             composable(TopLevel.ROUTES.route) {
                 com.twocircle.bike.feature.routing.screen.RouteBuilderScreen()

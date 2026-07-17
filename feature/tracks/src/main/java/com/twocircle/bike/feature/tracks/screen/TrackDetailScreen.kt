@@ -87,6 +87,15 @@ fun TrackDetailScreen(
 
                 HorizontalDivider()
 
+                // Track shape preview. Renders only if we have ≥2 points with coords.
+                if (s.detail.points.size >= 2) {
+                    TrackPreviewMap(
+                        points = s.detail.points.map {
+                            com.twocircle.bike.domain.model.Coord(lat = it.lat, lon = it.lon)
+                        },
+                    )
+                }
+
                 TelemetryBreakdown(
                     distance = summary.distanceMeters,
                     durationSec = summary.movingSeconds,

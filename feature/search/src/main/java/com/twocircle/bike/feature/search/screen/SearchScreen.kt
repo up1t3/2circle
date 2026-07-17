@@ -21,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -45,6 +46,7 @@ import com.twocircle.bike.feature.search.model.ScoredResult
 fun SearchScreen(
     modifier: Modifier = Modifier,
     onResultSelected: (ScoredResult) -> Unit = {},
+    onAddToRoute: (ScoredResult) -> Unit = {},
     viewModel: SearchViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -70,7 +72,7 @@ fun SearchScreen(
         when (val s = state) {
             SearchUiState.Idle -> Hint("Type a place name to search offline.")
             SearchUiState.Searching -> Loading()
-            is SearchUiState.Results -> ResultList(s.items, onResultSelected)
+            is SearchUiState.Results -> ResultList(s.items, onResultSelected, onAddToRoute)
             SearchUiState.Empty -> Hint("No matches found.")
             SearchUiState.NoRegion -> Hint(
                 "Download a region in the Regions tab to enable offline search.",
@@ -81,52 +83,67 @@ fun SearchScreen(
 }
 
 @Composable
-private fun ResultList(items: List<ScoredResult>, onSelect: (ScoredResult) -> Unit) {
+private fun ResultList(
+    items: List<ScoredResult>,
+    onSelect: (ScoredResult) -> Unit,
+    onAddToRoute: (ScoredResult) -> Unit,
+) {
     LazyColumn(
         contentPadding = PaddingValues(vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         items(items, key = { it.hit.rowId }) { result ->
-            ResultRow(result, onClick = { onSelect(result) })
+            ResultRow(result, onClick = { onSelect(result) }, onAddToRoute = { onAddToRoute(result) })
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun ResultRow(result: ScoredResult, onClick: () -> Unit) {
+private fun ResultRow(
+    result: ScoredResult,
+    onClick: () -> Unit,
+    onAddToRoute: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
     ) {
-        Text(
-            text = result.hit.name,
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.padding(top = 2.dp),
-        ) {
-            Text(
-                text = result.hit.kind.osmValue,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            result.distanceKm?.let { km ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = Format.distance(km * 1000.0),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    text = result.hit.name,
+                    style = MaterialTheme.typography.titleMedium,
                 )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(top = 2.dp),
+                ) {
+                    Text(
+                        text = result.hit.kind.osmValue,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    result.distanceKm?.let { km ->
+                        Text(
+                            text = Format.distance(km * 1000.0),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        )
+                    }
+                    if (result.hit.population > 0) {
+                        Text(
+                            text = "pop ${result.hit.population}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        )
+                    }
+                }
             }
-            if (result.hit.population > 0) {
-                Text(
-                    text = "pop ${result.hit.population}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                )
+            TextButton(onClick = onAddToRoute) {
+                Text("To route")
             }
         }
     }
