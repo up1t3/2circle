@@ -35,3 +35,6 @@ keystore.properties
 backend/.venv/
 backend/work/
 backend/regions/
+
+# Backend downloaded PBFs (large; pipeline fetches on demand)
+backend/pbf/
