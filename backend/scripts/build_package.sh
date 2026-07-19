@@ -39,37 +39,36 @@ fi
 
 [[ -d "$DIR" ]] || { echo "build_package: dir not found: $DIR" >&2; exit 3; }
 
-# Verify all three artefacts exist.
-for f in tiles.mbtiles routing.rd5 search.db; do
+# Verify the required artefacts exist. routing.rd5 is now optional — replaced by
+# the segments4/ directory when BRouter offline routing is bundled.
+for f in tiles.mbtiles search.db; do
     if [[ ! -s "$DIR/$f" ]]; then
         echo "build_package: missing or empty artefact: $DIR/$f" >&2
         exit 4
     fi
 done
+# Optional routing assets: either routing.rd5 (legacy stub) or segments4/ (real BRouter).
+if [[ ! -d "$DIR/segments4" && ! -s "$DIR/routing.rd5" ]]; then
+    echo "build_package: warning — no routing data (neither segments4/ nor routing.rd5)" >&2
+fi
 
 IFS=',' read -r MINLAT MINLON MAXLAT MAXLON <<< "$BOUNDS"
 
 ZIP_NAME="region-${ID}-v${VERSION}.zip"
 ZIP_PATH="$DIR/$ZIP_NAME"
 
-# Build the delivery zip. Store, not deflate — .mbtiles already gzip-compresses its
-# internal tiles, double-compression wastes CPU for negligible gain.
-# Use whichever archiver is available: `zip` on Linux/macOS, 7-Zip on Windows.
+# Build the delivery zip. Pack the whole region dir (recursive) so subdirectories
+# like segments4/ and profiles2/ survive — the offline BRouter engine needs them
+# with their original structure.
+# Store, not deflate — .mbtiles and .rd5 are already compressed internally.
 echo "[build_package] zipping → $ZIP_PATH"
 if command -v zip >/dev/null 2>&1; then
-    (
-        cd "$DIR"
-        zip -q -X "$ZIP_NAME" tiles.mbtiles routing.rd5 search.db
-    )
+    ( cd "$DIR" && zip -q -r -X "$ZIP_NAME" tiles.mbtiles routing.rd5 search.db segments4 profiles2 2>/dev/null || zip -q -r -X "$ZIP_NAME" . )
 elif [ -x "/c/Program Files/7-Zip/7z.exe" ]; then
-    # 7-Zip in its default install path. Use an array to avoid word-splitting on the
-    # space in "Program Files". -mx0 = store (no compression).
-    (
-        cd "$DIR"
-        "/c/Program Files/7-Zip/7z.exe" a -bd -mx0 "$ZIP_NAME" tiles.mbtiles routing.rd5 search.db >/dev/null
-    )
+    # 7-Zip: package everything in $DIR (subdirs included). -mx0 = store.
+    ( cd "$DIR" && "/c/Program Files/7-Zip/7z.exe" a -bd -mx0 "$ZIP_NAME" . >/dev/null )
 elif command -v 7z >/dev/null 2>&1; then
-    ( cd "$DIR" && 7z a -bd -mx0 "$ZIP_NAME" tiles.mbtiles routing.rd5 search.db >/dev/null )
+    ( cd "$DIR" && 7z a -bd -mx0 "$ZIP_NAME" . >/dev/null )
 else
     echo "[build_package] no zip or 7z available — install one or set ZIP_TOOL" >&2
     exit 2

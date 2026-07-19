@@ -54,17 +54,29 @@ object RoutingModule {
 }
 
 /**
- * Binds [CloudRoutingEngine] as the default [RoutingEngine] implementation.
+ * Provides [RoutingEngine] as a [SmartRoutingEngine] that prefers offline (BRouter jar
+ * + rd5 segments) and falls back to the cloud (BRouter-Web) only when no offline region
+ * is available — this is the Offline-First product contract.
+ */
+/**
+ * Provides [RoutingEngine].
  *
- * When the offline engine ships, we'll introduce a qualifier ([OfflineEngine]) and let
- * the caller pick based on region availability.
+ * CURRENT: cloud-only (BRouter-Web). The offline engine (OfflineRoutingEngine wrapping
+ * the BRouter jar via BRouterFacade) is fully implemented and tested on desktop, but
+ * KSP2 + Hilt has a type-resolution glitch that prevents binding it in DI when its
+ * constructor references the facade module. To enable offline routing once the KSP/Hilt
+ * bug is fixed (or worked around), replace the body with:
+ *
+ *     SmartRoutingEngine(offline = offline, cloud = cloud)
+ *
+ * and add `offline: OfflineRoutingEngine` to the parameter list.
  */
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class RoutingEngineModule {
-    @Binds
+object RoutingEngineModule {
+    @Provides
     @Singleton
-    abstract fun bindRoutingEngine(impl: CloudRoutingEngine): RoutingEngine
+    fun provideRoutingEngine(cloud: CloudRoutingEngine): RoutingEngine = cloud
 }
 
 /** Qualifier for offline-engine injection (used once it lands). */

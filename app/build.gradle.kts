@@ -69,6 +69,7 @@ dependencies {
     implementation(project(":feature:map"))
     implementation(project(":feature:search"))
     implementation(project(":feature:routing"))
+    implementation(project(":feature:routing-brouter"))
     implementation(project(":feature:tracking"))
     implementation(project(":feature:tracks"))
     implementation(project(":feature:regions"))

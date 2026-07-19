@@ -138,14 +138,31 @@ class RegionDownloader @Inject constructor(
         }
     }
 
-    /** Extract the zip into [destDir]. Each top-level entry becomes a file directly under it. */
+    /**
+     * Extract the zip into [destDir], preserving subdirectory structure.
+     *
+     * The region package contains nested directories (segments4/, profiles2/) that
+     * the offline BRouter engine expects at specific paths. We can't flatten — we
+     * must recreate the exact layout.
+     *
+     * Zip-slip protection: each target path is resolved against [destDir] and rejected
+     * if it escapes (entries with ../ would otherwise write outside the region dir).
+     */
     private fun extractTo(zip: File, destDir: File) {
         destDir.mkdirs()
+        val canonicalDest = destDir.canonicalPath
         ZipInputStream(FileInputStream(zip).buffered()).use { zin ->
             var entry = zin.nextEntry
             while (entry != null) {
                 if (!entry.isDirectory) {
-                    val target = File(destDir, File(entry.name).name)
+                    val target = File(destDir, entry.name)
+                    // Zip-slip guard: reject entries that escape the destination dir.
+                    if (!target.canonicalPath.startsWith(canonicalDest)) {
+                        Timber.w("Skipping zip entry outside dest dir: %s", entry.name)
+                        entry = zin.nextEntry
+                        continue
+                    }
+                    target.parentFile?.mkdirs()
                     target.outputStream().buffered().use { out ->
                         val buf = ByteArray(64 * 1024)
                         while (true) {

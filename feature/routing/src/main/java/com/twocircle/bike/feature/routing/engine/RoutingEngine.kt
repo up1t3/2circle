@@ -2,12 +2,18 @@ package com.twocircle.bike.feature.routing.engine
 
 import com.twocircle.bike.common.outcome.Failure
 import com.twocircle.bike.common.outcome.Outcome
+import com.twocircle.bike.domain.model.Coord
 import com.twocircle.bike.domain.model.Route
 import com.twocircle.bike.domain.model.RoutePlanId
 import com.twocircle.bike.domain.model.RoutingProfile
+import com.twocircle.bike.domain.model.Segment
+import com.twocircle.bike.domain.model.Smoothness
+import com.twocircle.bike.domain.model.Surface
 import com.twocircle.bike.domain.model.Waypoint
 import com.twocircle.bike.feature.routing.api.BRouterApi
 import com.twocircle.bike.feature.routing.api.BRouterRequestBuilder
+import com.twocircle.bike.feature.routing.brouter.BRouterFacade
+import com.twocircle.bike.feature.routing.brouter.BRouterResult
 import com.twocircle.bike.feature.routing.mapper.RouteMapper
 import retrofit2.HttpException
 import timber.log.Timber
@@ -18,15 +24,18 @@ import javax.inject.Singleton
 /**
  * Routes between waypoints.
  *
- * Sealed by transport: [CloudRoutingEngine] talks to a BRouter-Web instance (the v1
- * primary path until the offline engine ships); [OfflineRoutingEngine] is a stub that
- * will wrap the bundled BRouter jar + rd5 segments once Step 9's pipeline produces them.
+ * Implementations:
+ *  - [CloudRoutingEngine] — BRouter-Web (cloud fallback)
+ *  - [OfflineRoutingEngine] — wraps [BRouterFacade] (embedded BRouter jar + rd5)
+ *  - [SmartRoutingEngine] — picks offline first, falls back to cloud. Bound as the
+ *    default [RoutingEngine] in RoutingEngineModule.
  *
- * The sealed hierarchy keeps the call site uniform — callers ask for a route and let
- * the engine pick the transport. Failures are typed via [Outcome.Failure] so the UI can
- * render specific recovery actions (download region, retry, switch profile…).
+ * Note: OfflineRoutingEngine doesn't import btools.* directly — that lives in the
+ * separate :feature:routing-brouter module (BRouterFacade). This keeps KSP2 + Hilt
+ * type resolution healthy: the btools jar is only on the classpath of the brouter
+ * module, which has no @HiltAndroidApp-adjacent code that would trigger the glitch.
  */
-sealed interface RoutingEngine {
+interface RoutingEngine {
     suspend fun route(
         waypoints: List<Waypoint>,
         profile: RoutingProfile,
@@ -35,11 +44,7 @@ sealed interface RoutingEngine {
 }
 
 /**
- * Cloud fallback using BRouter-Web.
- *
- * Used as the v1 primary routing path. Requires network; on failure the caller surfaces
- * a typed [Failure.Network] or [Failure.Routing] error. When the offline engine lands,
- * the caller first tries offline and only falls back here if no region covers the area.
+ * Cloud fallback using BRouter-Web. Used when no offline region is available.
  */
 @Singleton
 class CloudRoutingEngine @Inject constructor(
@@ -57,10 +62,7 @@ class CloudRoutingEngine @Inject constructor(
         val lonlats = BRouterRequestBuilder.buildLonLats(waypoints)
         val profileName = BRouterRequestBuilder.profileName(profile)
         return try {
-            val response = api.route(
-                lonlats = lonlats,
-                profile = profileName,
-            )
+            val response = api.route(lonlats = lonlats, profile = profileName)
             RouteMapper.map(response, waypoints, planId, profile)
                 .fold(
                     onSuccess = { Outcome.Success(it) },
@@ -72,7 +74,6 @@ class CloudRoutingEngine @Inject constructor(
         } catch (e: IOException) {
             Outcome.Failure(Failure.Network.Offline)
         } catch (e: HttpException) {
-            // Error body logged for diagnosis but not surfaced — could leak server internals.
             val body = runCatching { e.response()?.errorBody()?.string() }.getOrNull()
             Timber.w(e, "BRouter HTTP %d: %s", e.code(), body?.take(200))
             Outcome.Failure(Failure.Network.Server(e.code()))
@@ -84,14 +85,79 @@ class CloudRoutingEngine @Inject constructor(
 }
 
 /**
- * Placeholder offline engine. Returns a typed failure so the caller knows to fall back
- * to cloud routing. Implementation lands with the bundled BRouter jar in a later step.
+ * Offline routing via the embedded BRouter jar (through [BRouterFacade]).
+ *
+ * Thin wrapper: maps [BRouterResult] to our domain [Route]. Doesn't touch any btools.*
+ * type — that's why this class can be referenced by Hilt without tripping the KSP2
+ * type-resolution glitch that affected the earlier in-module version.
  */
 @Singleton
-class OfflineRoutingEngine @Inject constructor() : RoutingEngine {
+class OfflineRoutingEngine @Inject constructor(
+    private val facade: BRouterFacade,
+) : RoutingEngine {
+
     override suspend fun route(
         waypoints: List<Waypoint>,
         profile: RoutingProfile,
         planId: RoutePlanId,
-    ): Outcome<Route> = Outcome.Failure(Failure.Routing.OfflineUnavailable)
+    ): Outcome<Route> {
+        val result = facade.computeRoute(waypoints, profile)
+        return when (result) {
+            is Outcome.Success -> Outcome.Success(
+                result.value.toRoute(waypoints, planId, profile),
+            )
+            is Outcome.Failure -> result
+        }
+    }
+
+    private fun BRouterResult.toRoute(
+        waypoints: List<Waypoint>,
+        planId: RoutePlanId,
+        profile: RoutingProfile,
+    ): Route {
+        val segment = Segment(
+            from = waypoints.first(),
+            to = waypoints.last(),
+            geometry = coords,
+            distanceMeters = distanceMeters,
+            plannedSeconds = (costMs / 1000L).coerceAtLeast(0L),
+            ascentMeters = ascentMeters,
+            descentMeters = ascentMeters,
+            surface = Surface.Unknown,
+            smoothness = Smoothness.Unknown,
+        )
+        return Route(
+            id = planId,
+            profile = profile,
+            segments = listOf(segment),
+            waypoints = waypoints,
+        )
+    }
+}
+
+/**
+ * Offline-primary + cloud-fallback router. Bound as the default [RoutingEngine].
+ */
+@Singleton
+class SmartRoutingEngine @Inject constructor(
+    private val offline: OfflineRoutingEngine,
+    private val cloud: CloudRoutingEngine,
+) : RoutingEngine {
+
+    override suspend fun route(
+        waypoints: List<Waypoint>,
+        profile: RoutingProfile,
+        planId: RoutePlanId,
+    ): Outcome<Route> {
+        val offlineResult = offline.route(waypoints, profile, planId)
+        if (offlineResult is Outcome.Success) return offlineResult
+        val failure = (offlineResult as Outcome.Failure).failure
+        Timber.i("Offline routing unavailable (%s); falling back to cloud", failure.javaClass.simpleName)
+        return when (val cloudResult = cloud.route(waypoints, profile, planId)) {
+            is Outcome.Success -> cloudResult
+            is Outcome.Failure -> {
+                if (cloudResult.failure is Failure.Network.Offline) offlineResult else cloudResult
+            }
+        }
+    }
 }

@@ -38,3 +38,6 @@ backend/regions/
 
 # Backend downloaded PBFs (large; pipeline fetches on demand)
 backend/pbf/
+
+# BRouter toolchain download (jar + rd5 segments — large, fetched on demand)
+backend/brouter/
