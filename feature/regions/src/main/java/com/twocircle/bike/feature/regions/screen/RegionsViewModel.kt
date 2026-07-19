@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -55,13 +56,33 @@ class RegionsViewModel @Inject constructor(
             when (val r = catalog.fetch(RegionCatalog.DEFAULT_MANIFEST_URL)) {
                 is Outcome.Success -> {
                     cachedCatalog = r.value.regions
-                    rebuildRows()
+                    // Force re-emission: combine() doesn't observe cachedCatalog (a
+                    // plain field, not a flow), so without this nudge the rows list
+                    // wouldn't refresh after a successful fetch.
+                    emitMergedRows()
                 }
                 is Outcome.Failure -> {
                     if (cachedCatalog.isEmpty()) _state.value = RegionsUiState.Error(r.failure)
                     else Timber.w("Catalog refresh failed; keeping cached: ${r.failure}")
                 }
             }
+        }
+    }
+
+    /**
+     * Recompute the merged projection and push it to [_state].
+     *
+     * Called whenever [cachedCatalog] changes — combine() in [observeLocalAndProgress]
+     * doesn't see this field (it's not a flow), so catalog updates need an explicit
+     * re-emit. Local-DB changes are still handled reactively via the combine.
+     */
+    private suspend fun emitMergedRows() {
+        val local = regions.allFlow().firstOrNull() ?: emptyList()
+        val rows = mergeRows(local, cachedCatalog)
+        _state.value = if (rows.isEmpty() && cachedCatalog.isEmpty()) {
+            RegionsUiState.NoRegion
+        } else {
+            RegionsUiState.Loaded(rows, downloader.progress.value)
         }
     }
 

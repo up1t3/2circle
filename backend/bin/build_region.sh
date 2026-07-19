@@ -31,6 +31,20 @@ SKIP_SEARCH=""
 SKIP_TILES=""
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Prefer the backend-local venv Python (has osmium installed); fall back to system python3.
+PYTHON="${PYTHON:-}"
+if [[ -z "$PYTHON" ]]; then
+    if [[ -x "$ROOT_DIR/.venv/Scripts/python.exe" ]]; then
+        PYTHON="$ROOT_DIR/.venv/Scripts/python.exe"
+    elif [[ -x "$ROOT_DIR/.venv/bin/python" ]]; then
+        PYTHON="$ROOT_DIR/.venv/bin/python"
+    else
+        PYTHON="python3"
+    fi
+fi
+# Make tilemaker discoverable even when invoked from outside backend/bin.
+export PATH="$ROOT_DIR/bin:$PATH"
+
 # ─── arg parsing ───────────────────────────────────────────────────────────────
 usage() {
     cat <<'EOF'
@@ -138,7 +152,7 @@ fi
 SEARCH="$OUT/search.db"
 if [[ -z "$SKIP_SEARCH" && ! -s "$SEARCH" ]]; then
     echo "--- stage 3: search.db ---"
-    "$ROOT_DIR/scripts/build_search_db.py" \
+    "$PYTHON" "$ROOT_DIR/scripts/build_search_db.py" \
         --pbf "$PBF" \
         --out "$SEARCH" \
         --bounds "$BOUNDS"

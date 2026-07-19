@@ -30,3 +30,8 @@ keystore.properties
 # Logs
 *.log
 .screens/
+
+# Backend local venv (Python toolchain for build_search_db.py)
+backend/.venv/
+backend/work/
+backend/regions/

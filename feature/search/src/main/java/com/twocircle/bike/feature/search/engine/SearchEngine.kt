@@ -58,6 +58,8 @@ class SearchEngine @Inject constructor(
                 SQLiteDatabase.OPEN_READONLY or SQLiteDatabase.NO_LOCALIZED_COLLATORS,
             )
             currentPath = path
+            // Reset the FTS5 probe — each DB handle may have a different SQLite build.
+            fts5Cached = null
             true
         } catch (e: Exception) {
             Timber.e(e, "Failed to open search.db at $path")
@@ -143,6 +145,12 @@ class SearchEngine @Inject constructor(
     }
 
     private fun queryHits(db: SQLiteDatabase, escapedQuery: String): List<SearchHit> {
+        // Some Android SQLite builds (notably several AVD images) ship without FTS5.
+        // Detect once per DB open and fall back to a LIKE-based scan when unavailable.
+        // The pipeline still emits FTS5 (better experience where supported); the
+        // fallback is the safety net that makes search work everywhere.
+        if (!fts5Available(db)) return queryHitsFallback(db, escapedQuery)
+
         val sql = (
             "SELECT rowid, name, name_ascii, kind, lat, lon, population, bm25(places) AS rank " +
                 "FROM ${SearchSchema.TABLE} " +
@@ -162,6 +170,78 @@ class SearchEngine @Inject constructor(
                     lon = c.getDouble(c.getColumnIndexOrThrow(SearchSchema.COL_LON)),
                     population = c.getLong(c.getColumnIndexOrThrow(SearchSchema.COL_POPULATION)),
                     bm25Rank = c.getDouble(c.getColumnIndexOrThrow("rank")),
+                )
+            }
+        }
+        return out
+    }
+
+    /**
+     * Detect whether this SQLite build has FTS5 enabled. Cached per [db] handle to avoid
+     * running the probe query on every search.
+     *
+     * Probe: `SELECT bm25(fts5('x'))` would be cleaner but `fts5()` is itself an FTS5
+     * function, so we check `PRAGMA compile_options` for the ENABLE_FTS5 flag instead —
+     * a string-scan that works on any SQLite version.
+     */
+    private fun fts5Available(db: SQLiteDatabase): Boolean {
+        if (fts5Cached != null) return fts5Cached!!
+        fts5Cached = try {
+            db.rawQuery("PRAGMA compile_options;", null).use { c ->
+                val opts = StringBuilder()
+                while (c.moveToNext()) opts.append(c.getString(0)).append('\n')
+                opts.contains("ENABLE_FTS5")
+            }
+        } catch (e: Exception) {
+            Timber.w(e, "FTS5 probe failed; assuming unavailable")
+            false
+        }
+        return fts5Cached!!
+    }
+    @Volatile private var fts5Cached: Boolean? = null
+
+    /**
+     * LIKE-based fallback used when FTS5 is unavailable (some AVD images and a few
+     * OEM ROMs ship SQLite without it). Returns all rows whose name or asciiName
+     * contains the raw query string. We strip the FTS5 escape wrapping applied by
+     * [escapeForFts] so the LIKE matches cleanly.
+     *
+     * bm25 is unavailable here, so we sort by length (shorter names first — they're
+     * usually more relevant than longer ones containing the substring).
+     */
+    private fun queryHitsFallback(db: SQLiteDatabase, escapedQuery: String): List<SearchHit> {
+        // Reverse the escape: "Ordino"* → Ordino. Split on whitespace to allow multi-token.
+        val cleaned = escapedQuery
+            .replace("\"", "")
+            .replace("*", "")
+            .trim()
+            .split(Regex("\\s+"))
+            .filter { it.isNotEmpty() }
+            .joinToString("%") { it }
+        if (cleaned.isEmpty()) return emptyList()
+
+        // Build a WHERE clause with LIKE on both name and name_ascii, so Cyrillic /
+        // transliterated matches both work.
+        val pattern = "%$cleaned%"
+        val sql = (
+            "SELECT rowid, name, name_ascii, kind, lat, lon, population, 0 AS rank " +
+                "FROM ${SearchSchema.TABLE} " +
+                "WHERE name LIKE ? OR name_ascii LIKE ? " +
+                "ORDER BY LENGTH(name) ASC LIMIT ?"
+            )
+        val args = arrayOf(pattern, pattern, MAX_HITS_PER_QUERY.toString())
+        val out = ArrayList<SearchHit>(64)
+        db.rawQuery(sql, args).use { c ->
+            while (c.moveToNext()) {
+                out += SearchHit(
+                    rowId = c.getLong(c.getColumnIndexOrThrow(SearchSchema.COL_ROWID)),
+                    name = c.getString(c.getColumnIndexOrThrow(SearchSchema.COL_NAME)) ?: "",
+                    asciiName = c.getString(c.getColumnIndexOrThrow(SearchSchema.COL_NAME_ASCII)) ?: "",
+                    kind = PlaceKind.fromOsm(c.getString(c.getColumnIndexOrThrow(SearchSchema.COL_KIND))),
+                    lat = c.getDouble(c.getColumnIndexOrThrow(SearchSchema.COL_LAT)),
+                    lon = c.getDouble(c.getColumnIndexOrThrow(SearchSchema.COL_LON)),
+                    population = c.getLong(c.getColumnIndexOrThrow(SearchSchema.COL_POPULATION)),
+                    bm25Rank = -100.0, // neutral rank; SearchRanking.relevance will normalise
                 )
             }
         }

@@ -173,6 +173,31 @@ class PlaceHandler(osmium.SimpleHandler):
 # ─── schema + writer ───────────────────────────────────────────────────────────
 
 SCHEMA = """
+-- Plain SQLite table (NOT FTS5). Works on every Android device, including AVD
+-- images and OEM ROMs that ship SQLite without the FTS5 extension compiled in.
+-- The client's SearchEngine uses LIKE with a leading wildcard; the indexes below
+-- make those queries fast enough for typical region sizes (tens of thousands of rows).
+--
+-- To recover the FTS5 experience on devices that support it, a future pipeline mode
+-- could emit a `places_fts` virtual table alongside this one and let the client pick.
+CREATE TABLE places (
+    rowid INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    name_ascii TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    lat REAL NOT NULL,
+    lon REAL NOT NULL,
+    population INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX idx_places_name ON places(name);
+CREATE INDEX idx_places_name_ascii ON places(name_ascii);
+"""
+
+
+SCHEMA_FTS5 = """
+-- Alternative schema using FTS5 (better tokenisation, bm25 ranking). Use only when
+-- the target devices are known to ship SQLite with ENABLE_FTS5 — otherwise the table
+-- itself becomes unreadable on those devices. Kept here as the path forward.
 CREATE VIRTUAL TABLE places USING fts5(
     name, name_ascii, kind, lat UNINDEXED, lon UNINDEXED,
     population UNINDEXED,

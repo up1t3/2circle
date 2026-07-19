@@ -40,14 +40,15 @@ done
 mkdir -p "$(dirname "$OUT")"
 
 echo "[build_tiles] tilemaker → $OUT"
-# --combine combines adjacent tiles (smaller mbtiles); --process defines the Lua hooks.
-# tilemaker writes the mbtiles directly to --output.
+# tilemaker v3: combine is now controlled by `combine_below` in the JSON config;
+# the `--combine` flag was removed. `--process` defines the Lua tag-filtering hooks.
+# We use 2circle-specific config + Lua that keeps surface/smoothness/highway tags and
+# drops buildings/addresses (5–10× smaller mbtiles for bicycle use).
 tilemaker \
     --input "$PBF" \
     --output "$OUT" \
     --config "$CONFIG" \
-    --process "$PROCESS" \
-    --combine
+    --process "$PROCESS"
 
 if [[ ! -s "$OUT" ]]; then
     echo "[build_tiles] tilemaker produced no output" >&2
