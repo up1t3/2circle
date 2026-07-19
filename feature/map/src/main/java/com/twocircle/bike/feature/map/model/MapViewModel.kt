@@ -29,6 +29,7 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val regionsRepository: RegionsRepository,
     private val regionAssets: RegionAssets,
+    val trackOverlay: com.twocircle.bike.domain.TrackOverlay,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<MapUiState>(MapUiState.Loading)

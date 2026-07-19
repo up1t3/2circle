@@ -3,6 +3,7 @@ package com.twocircle.bike.feature.tracking
 import com.twocircle.bike.data.db.entity.TrackEntity
 import com.twocircle.bike.data.db.entity.TrackStatus
 import com.twocircle.bike.data.repository.TracksRepository
+import com.twocircle.bike.domain.model.Coord
 import com.twocircle.bike.feature.tracking.model.PointSample
 import com.twocircle.bike.feature.tracking.model.SamplerState
 import com.twocircle.bike.feature.tracking.model.TrackAggregates
@@ -44,6 +45,7 @@ import javax.inject.Singleton
 class TrackingController @Inject constructor(
     private val tracks: TracksRepository,
     private val pipeline: PointPipeline,
+    private val overlay: TrackOverlayController,
 ) {
 
     private val _state = MutableStateFlow(initialTrackingState())
@@ -131,6 +133,8 @@ class TrackingController @Inject constructor(
             val updatedAgg = _state.value.aggregates.withAcceptedSample(lastAccepted, accepted, nowMs)
             lastAccepted = accepted
             pipeline.enqueue(accepted)
+            // Push to the map overlay so the live polyline renders on the main map.
+            overlay.appendPoint(Coord(lat = accepted.lat, lon = accepted.lon, ele = accepted.ele))
             _state.value = _state.value.copy(aggregates = updatedAgg, sampler = sampler)
             // Mirror aggregates into the track row periodically (the service drives this).
         } else {
@@ -173,6 +177,7 @@ class TrackingController @Inject constructor(
         )
         tracks.setStatus(tid, TrackStatus.Finished)
         pipeline.unbind()
+        overlay.clear()
         recentSamples.clear()
         lastAccepted = null
         _state.value = initialTrackingState()

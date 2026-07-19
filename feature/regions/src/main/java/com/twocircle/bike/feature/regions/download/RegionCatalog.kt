@@ -60,13 +60,15 @@ class RegionCatalog @Inject constructor(
         /**
          * Default manifest URL.
          *
-         * LOCAL DEV: points at the backend pipeline's local HTTP server (started via
-         * `python -m http.server 8765` from `backend/regions/`). The emulator reaches
-         * the host via the special 10.0.2.2 alias.
+         * LOCAL DEV (phone): points at the backend pipeline's HTTP server running on
+         * the dev machine. Phone and dev machine must be on the same LAN.
          *
-         * PRODUCTION: override this via BuildConfig field when self-hosting, e.g.
+         * LOCAL DEV (emulator): override to http://10.0.2.2:8765/manifest.json — that's
+         * the emulator's alias for the host loopback.
+         *
+         * PRODUCTION: override via BuildConfig when self-hosting, e.g.
          * `https://2circle.example.org/regions/manifest.json`.
          */
-        const val DEFAULT_MANIFEST_URL = "http://10.0.2.2:8765/manifest.json"
+        const val DEFAULT_MANIFEST_URL = "http://192.168.1.48:8765/manifest.json"
     }
 }

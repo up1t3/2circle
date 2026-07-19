@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -53,10 +54,27 @@ fun MapScreen(
             is MapUiState.NoRegion -> NoRegionPrompt(modifier = Modifier.align(Alignment.Center))
             MapUiState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             is MapUiState.Ready -> {
+                // Track overlay: renders the live/historical polyline on the map.
+                // Created once when the map enters composition, stopped on dispose.
+                val overlayRef = remember { object {
+                    var layer: com.twocircle.bike.feature.map.view.TrackOverlayLayer? = null
+                } }
+                androidx.compose.runtime.DisposableEffect(s.styleJson) {
+                    onDispose { overlayRef.layer?.stop() }
+                }
                 BikeMap(
                     styleJson = s.styleJson,
                     initialCamera = s.initialCamera,
                     modifier = Modifier.fillMaxSize(),
+                    onMapReady = { map ->
+                        overlayRef.layer?.stop()
+                        val layer = com.twocircle.bike.feature.map.view.TrackOverlayLayer(
+                            map = map,
+                            overlay = viewModel.trackOverlay,
+                        )
+                        layer.start()
+                        overlayRef.layer = layer
+                    },
                 )
                 // Floating search button — opens the offline search screen.
                 FloatingActionButton(
