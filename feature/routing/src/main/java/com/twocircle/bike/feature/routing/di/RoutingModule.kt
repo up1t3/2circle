@@ -59,17 +59,17 @@ object RoutingModule {
  * is available — this is the Offline-First product contract.
  */
 /**
- * Provides [RoutingEngine].
+ * Provides [RoutingEngine] — cloud-only (BRouter-Web).
  *
- * CURRENT: cloud-only (BRouter-Web). The offline engine (OfflineRoutingEngine wrapping
- * the BRouter jar via BRouterFacade) is fully implemented and tested on desktop, but
- * KSP2 + Hilt has a type-resolution glitch that prevents binding it in DI when its
- * constructor references the facade module. To enable offline routing once the KSP/Hilt
- * bug is fixed (or worked around), replace the body with:
+ * OfflineRoutingEngine + SmartRoutingEngine are fully implemented and tested on desktop,
+ * but KSP2 + Hilt 2.56.2 cannot resolve OfflineRoutingEngine in @Provides when its
+ * constructor references BRouterFacade from a cross-module dependency with an embedded
+ * jar. Tried: Hilt 2.58 (regressions on ASM transform), 2.59 (requires AGP 9.0),
+ * separate module isolation, api() vs implementation() — all reproduce.
  *
- *     SmartRoutingEngine(offline = offline, cloud = cloud)
- *
- * and add `offline: OfflineRoutingEngine` to the parameter list.
+ * ACTIVATION when KSP/Hilt is patched: replace body with
+ *   SmartRoutingEngine(offline = offline, cloud = cloud)
+ * and add `offline: OfflineRoutingEngine` parameter.
  */
 @Module
 @InstallIn(SingletonComponent::class)

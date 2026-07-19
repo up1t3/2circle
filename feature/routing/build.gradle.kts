@@ -26,9 +26,11 @@ dependencies {
     api(project(":core:designsystem"))
     implementation(project(":core:data"))
 
-    // BRouter offline routing engine — isolated in its own module so the btools.* jar
-    // stays off this module's KSP-analysis classpath (KSP2 + Hilt type-resolution bug).
-    implementation(project(":feature:routing-brouter"))
+    // BRouter offline routing engine. Using `api` rather than `implementation` because
+    // KSP2's analysis scope doesn't propagate transitive `implementation` dependencies
+    // correctly when they carry embedded jars — `api` exposes them to the consumer's
+    // analysis scope and the type-resolution glitch disappears.
+    api(project(":feature:routing-brouter"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

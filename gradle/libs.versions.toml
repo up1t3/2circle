@@ -19,7 +19,10 @@ composeBom = "2024.12.01"
 navigationCompose = "2.8.5"
 hiltNavigationCompose = "1.2.0"
 
-# DI
+# DI — 2.56.2 (stable on AGP 8.7 + Kotlin 2.1 + KSP2).
+# Higher versions (2.58/2.59) were tried for BRouter offline-engine type resolution
+# but introduced regressions (2.59 requires AGP 9.0; 2.58 breaks ASM transform on
+# core:data). BRouter offline routing stays implemented-but-disabled; see RoutingModule.
 hilt = "2.56.2"
 
 # Coroutines
