@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Russian (ru). Default locale for the project author. -->
+<!-- Russian (ru). App-shell-only strings. -->
 <resources>
     <string name="app_name">2circle</string>
 
-    <!-- Top-level destinations -->
+    <!-- Top-level navigation -->
     <string name="nav_map">Карта</string>
     <string name="nav_routes">Маршруты</string>
     <string name="nav_tracks">Треки</string>
     <string name="nav_regions">Регионы</string>
 
     <!-- Permissions -->
+    <string name="perm_location_title">Доступ к геолокации</string>
+    <string name="perm_dismiss_not_now">Не сейчас</string>
     <string name="perm_location_rationale">
         Для записи трека и живого ETA нужен доступ к геолокации.
         Разрешите доступ — будем показывать вашу позицию и считать дистанцию.

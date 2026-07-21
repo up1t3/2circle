@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Russian (ru). Centralised UI strings in :core:designsystem. -->
+<resources>
+    <!-- Shared actions -->
+    <string name="action_retry">Повторить</string>
+    <string name="action_refresh">Обновить</string>
+    <string name="action_delete">Удалить</string>
+    <string name="action_download">Скачать</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_close">Закрыть</string>
+    <string name="action_done">Готово</string>
+
+    <!-- Map screen -->
+    <string name="cd_map_search_fab">Поиск</string>
+    <string name="cd_map_start_ride_fab">Начать поездку</string>
+    <string name="cd_map_my_location_fab">Моё местоположение</string>
+    <string name="cd_map_poi_fab">Точки интереса</string>
+    <string name="map_no_region_title">Офлайн-регион ещё не загружен</string>
+    <string name="map_no_region_body">
+        Откройте вкладку «Регионы» и скачайте регион, чтобы планировать поездки офлайн.
+    </string>
+    <string name="map_error_title">Не удалось загрузить карту</string>
+    <string name="map_error_region_not_downloaded">Регион не скачан</string>
+    <string name="map_error_region_corrupted">Файлы региона повреждены</string>
+    <string name="map_error_storage_inaccessible">Хранилище недоступно</string>
+    <string name="map_error_generic">Непредвиденная ошибка</string>
+
+    <!-- Search screen -->
+    <string name="search_placeholder">Поиск мест, источников, перевалов…</string>
+    <string name="cd_search_clear">Очистить</string>
+    <string name="search_hint_idle">Введите название места для офлайн-поиска.</string>
+    <string name="search_hint_empty">Ничего не найдено.</string>
+    <string name="search_hint_no_region">
+        Скачайте регион во вкладке «Регионы», чтобы включить офлайн-поиск.
+    </string>
+    <string name="search_error_generic">Ошибка поиска</string>
+    <string name="search_pop_fmt">нас. %1$d</string>
+    <string name="search_action_to_route">В маршрут</string>
+
+    <!-- Route builder screen -->
+    <string name="route_builder_title">Построение маршрута</string>
+    <string name="route_empty_hint">
+        Добавляйте точки с карты (долгое нажатие) или через поиск, чтобы построить маршрут.
+    </string>
+    <string name="route_need_more_hint">Добавьте ещё хотя бы одну точку для построения маршрута</string>
+    <string name="waypoint_added">Точка добавлена</string>
+    <string name="route_action_save">Сохранить маршрут</string>
+    <string name="saved_routes_title">Сохранённые маршруты</string>
+    <string name="saved_routes_empty">Нет сохранённых маршрутов. Постройте и сохраните маршрут.</string>
+    <string name="route_waypoint_coord_fmt">%1$.4f, %2$.4f</string>
+    <string name="cd_route_remove_waypoint">Удалить точку</string>
+    <string name="route_preview_title">Запланированный маршрут</string>
+    <string name="route_planning_status">Прокладка маршрута…</string>
+    <string name="route_error_title">Не удалось построить маршрут</string>
+    <string name="route_error_no_path">Маршрут между этими точками не найден</string>
+    <string name="route_error_region_not_downloaded">Регион не скачан</string>
+    <string name="route_error_generic">Ошибка маршрутизации</string>
+    <string name="route_action_planning">Прокладка…</string>
+    <string name="route_action_plan">Построить маршрут</string>
+    <string name="route_replan">Перестроить</string>
+
+    <!-- Tracking screen + notifications -->
+    <string name="tracking_title_ride">Поездка</string>
+    <string name="tracking_action_start">Начать поездку</string>
+    <string name="tracking_action_stop">Стоп</string>
+    <string name="track_default_name_fmt">Поездка %1$s</string>
+    <string name="notif_channel_ride_recording_name">Запись поездки</string>
+    <string name="notif_channel_ride_recording_desc">
+        Постоянное уведомление во время записи поездки.
+    </string>
+    <string name="notif_recording_title">2circle — запись</string>
+    <string name="notif_recording_content_fmt">%1$s  ·  %2$s  ·  ↑%3$s</string>
+
+    <!-- Tracks screen + detail -->
+    <string name="tracks_title">Треки</string>
+    <string name="tracks_empty_hint">Поездок пока нет. Начните первую с экрана карты.</string>
+    <string name="tracks_import_gpx">Импорт GPX</string>
+    <string name="tracks_error_generic">Не удалось загрузить треки</string>
+    <string name="tracks_row_stats_fmt">%1$s  ·  %2$s  ·  %3$s</string>
+    <string name="track_detail_not_found">Трек не найден.</string>
+    <string name="track_detail_error_generic">Не удалось загрузить трек</string>
+    <string name="track_detail_share_chooser_title">Поделиться GPX</string>
+    <string name="track_detail_action_export_gpx">Экспорт GPX</string>
+    <string name="track_detail_action_delete">Удалить трек</string>
+
+    <!-- Regions screen -->
+    <string name="regions_title">Регионы</string>
+    <string name="regions_empty_hint">Нет доступных регионов. Нажмите «Обновить», чтобы загрузить каталог.</string>
+    <string name="regions_error_generic">Не удалось загрузить регионы</string>
+    <string name="regions_row_meta_fmt">%1$s  ·  v%2$d</string>
+    <string name="region_dl_downloading_fmt">Скачивание… %1$d%%</string>
+    <string name="region_dl_verifying">Проверка…</string>
+    <string name="region_dl_extracting">Распаковка…</string>
+    <string name="region_dl_installed">Установлено</string>
+    <string name="region_dl_failed_fmt">Ошибка: %1$s</string>
+    <string name="region_dl_failed_unknown">неизвестно</string>
+
+    <!-- POI bottom sheet -->
+    <string name="poi_sheet_title">Точки интереса</string>
+    <string name="poi_sheet_subtitle">Выберите категории для отображения</string>
+    <string name="poi_empty_hint">В этой области нет точек выбранных категорий.</string>
+    <string name="poi_action_add_to_route">В маршрут</string>
+    <string name="poi_count_fmt">%1$d точек</string>
+
+    <!-- POI detail card -->
+    <string name="poi_detail_coords">%1$.5f, %2$.5f</string>
+    <string name="poi_detail_category">Категория</string>
+    <string name="poi_detail_close">Закрыть</string>
+
+    <!-- Waypoint action sheet -->
+    <string name="waypoint_sheet_title">Добавить точку</string>
+    <string name="waypoint_sheet_coords">%1$.5f, %2$.5f</string>
+    <string name="waypoint_sheet_add">Добавить в маршрут</string>
+    <string name="waypoint_sheet_whats_here">Что здесь?</string>
+    <string name="waypoint_sheet_cancel">Отмена</string>
+    <string name="waypoint_sheet_searching">Поиск рядом…</string>
+    <string name="waypoint_sheet_found_name">%1$s</string>
+
+    <!-- Stat captions -->
+    <string name="stat_distance">Дистанция</string>
+    <string name="stat_time">Время</string>
+    <string name="stat_ascent">Набор</string>
+    <string name="stat_descent">Спуск</string>
+    <string name="stat_caption_distance">дистанция</string>
+    <string name="stat_caption_avg">средняя</string>
+    <string name="stat_caption_moving">движение</string>
+    <string name="stat_caption_ascent">набор</string>
+    <string name="stat_caption_descent">спуск</string>
+    <string name="stat_caption_max">макс.</string>
+    <string name="stat_caption_points">точек</string>
+
+    <!-- Routing profiles -->
+    <string name="profile_touring">Туринг</string>
+    <string name="profile_road">Шоссе</string>
+    <string name="profile_mtb">МТБ</string>
+
+    <!-- Waypoint role / source -->
+    <string name="waypoint_role_start">Старт</string>
+    <string name="waypoint_role_via">Транзит</string>
+    <string name="waypoint_role_end">Финиш</string>
+    <string name="waypoint_source_manual">Вручную</string>
+    <string name="waypoint_source_search">Поиск</string>
+    <string name="waypoint_source_gps">GPS</string>
+    <string name="waypoint_source_gpx_import">GPX-импорт</string>
+
+    <!-- Surface legend -->
+    <string name="surface_asphalt">Асфальт</string>
+    <string name="surface_compacted">Грунт укатанный</string>
+    <string name="surface_dirt">Грунт</string>
+    <string name="surface_sand">Песок</string>
+    <string name="surface_grass">Трава</string>
+    <string name="surface_rock">Камни</string>
+    <string name="surface_unknown">Неизвестно</string>
+
+    <!-- Place kinds -->
+    <string name="place_kind_city">Город</string>
+    <string name="place_kind_town">Город</string>
+    <string name="place_kind_village">Деревня</string>
+    <string name="place_kind_hamlet">Хутор</string>
+    <string name="place_kind_spring">Источник</string>
+    <string name="place_kind_mountain_pass">Перевал</string>
+    <string name="place_kind_campsite">Кемпинг</string>
+    <string name="place_kind_viewpoint">Обзорная точка</string>
+    <string name="place_kind_bicycle_service">Велосервис</string>
+    <string name="place_kind_pharmacy">Аптека</string>
+    <string name="place_kind_fuel">Заправка</string>
+    <string name="place_kind_cafe">Кафе</string>
+    <string name="place_kind_restaurant">Ресторан</string>
+    <string name="place_kind_hospital">Больница</string>
+    <string name="place_kind_atm">Банкомат</string>
+    <string name="place_kind_water">Питьевая вода</string>
+    <string name="place_kind_bicycle_rental">Велопрокат</string>
+    <string name="place_kind_hotel">Гостиница</string>
+    <string name="place_kind_shop">Магазин</string>
+    <string name="place_kind_other">Точка</string>
+
+    <!-- Region install states -->
+    <string name="region_install_state_installed">Установлен</string>
+    <string name="region_install_state_not_installed">Не установлен</string>
+    <string name="region_install_state_failed">Ошибка</string>
+    <string name="region_install_state_downloading">Скачивание</string>
+    <string name="region_install_state_verifying">Проверка</string>
+    <string name="region_install_state_extracting">Распаковка</string>
+
+    <!-- Format units -->
+    <string name="format_unit_meter">м</string>
+    <string name="format_unit_kilometer">км</string>
+    <string name="format_unit_kmh">км/ч</string>
+    <string name="format_unit_second">с</string>
+    <string name="format_unit_minute">мин</string>
+    <string name="format_unit_hour">ч</string>
+    <string name="format_unit_percent">%</string>
+    <string name="format_unit_gb">ГБ</string>
+    <string name="format_unit_mb">МБ</string>
+    <string name="format_unit_kb">КБ</string>
+    <string name="format_unit_b">Б</string>
+
+    <!-- Placeholder -->
+    <string name="placeholder_screen_title_fmt">2circle / %1$s</string>
+    <string name="placeholder_screen_body">Экран подключается в следующих шагах сборки.</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_section_language">Язык</string>
+    <string name="settings_language_system">Системный</string>
+    <string name="settings_section_about">О приложении</string>
+    <string name="settings_about_version">Версия %1$s</string>
+    <string name="settings_about_attribution">Картографические данные © Участники OpenStreetMap (ODbL). Рельеф: Copernicus DEM GLO-30.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step_of">Шаг %1$d из %2$d</string>
+    <string name="onboarding_action_skip">Пропустить</string>
+    <string name="onboarding_action_next">Далее</string>
+    <string name="onboarding_action_done">Начать</string>
+
+    <string name="onboarding_title_1">Офлайн-карты для велопутешествий</string>
+    <string name="onboarding_body_1">Скачайте регион один раз и ездите без связи. Дороги окрашены по покрытию — асфальт, гравий, песок — чтобы вы всегда знали, что впереди.</string>
+
+    <string name="onboarding_title_2">Ищите места по названию</string>
+    <string name="onboarding_body_2">Ищите деревни, источники и перевалы офлайн. Долгое нажатие на карте добавит точку маршрута; объединяйте их в маршрут.</string>
+
+    <string name="onboarding_title_3">Запись и экспорт</string>
+    <string name="onboarding_body_3">Crash-safe запись сохраняет каждую GPS-точку, даже если приложение убито во время поездки. Экспортируйте треки в GPX, чтобы поделиться.</string>
+    <!-- UI Redesign Sprint 1 -->
+    <string name="map_cd_profile">Профиль</string>
+    <string name="map_cd_search">Поиск</string>
+    <string name="map_cd_reset_bearing">Сбросить вращение</string>
+    <string name="map_poi_chip_all">Все</string>
+    <string name="map_cd_my_location">Моя геопозиция</string>
+    <string name="map_action_navigate">Навигация</string>
+    <string name="map_action_add_waypoint">Добавить путевую точку</string>
+    <string name="map_action_open_menu">Открыть меню действий</string>
+    <string name="map_action_close_menu">Закрыть меню</string>
+    <string name="route_section_surfaces">Типы покрытия</string>
+    <string name="route_section_elevations">Профиль высот</string>
+    <string name="route_no_elevation_data">Нет данных о высоте</string>
+    <string name="route_cd_drag_handle">Перетащить для изменения порядка</string>
+    <!-- UI Redesign Sprint 2 -->
+    <string name="settings_section_account">Аккаунт</string>
+    <string name="settings_account_offline">Офлайн-велосипедист</string>
+    <string name="settings_account_default_name">Велосипедист 2circle</string>
+    <string name="settings_section_theme">Тема оформления</string>
+    <string name="settings_theme_system">Системная</string>
+    <string name="settings_theme_dark">Тёмная</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_section_units">Единицы измерения</string>
+    <string name="settings_units_metric">Метрическая (км, м, км/ч)</string>
+    <string name="settings_units_imperial">Имперская (мили, футы, mph)</string>
+    <string name="settings_section_maps">Карты</string>
+    <string name="settings_maps_active_region">Активный регион</string>
+    <string name="settings_maps_region_loaded">Офлайн-регион загружен</string>
+    <string name="track_detail_delete_confirm_title">Удалить трек?</string>
+    <string name="track_detail_delete_confirm_body">Этот трек будет удален безвозвратно.</string>
+    <string name="regions_active_badge">Активный</string>
+    <!-- UI Redesign Sprint 3 -->
+    <string name="nav_feed">Лента</string>
+    <string name="nav_profile">Профиль</string>
+    <string name="auth_login_title">С возвращением</string>
+    <string name="auth_email">Электронная почта</string>
+    <string name="auth_password">Пароль</string>
+    <string name="auth_login_button">Войти</string>
+    <string name="auth_google_button">Войти через Google</string>
+    <string name="auth_register_link">Нет аккаунта? Зарегистрироваться</string>
+    <string name="auth_register_title">Регистрация</string>
+    <string name="auth_display_name">Имя</string>
+    <string name="auth_confirm_password">Подтверждение пароля</string>
+    <string name="auth_terms_checkbox">Я согласен с условиями использования</string>
+    <string name="auth_register_button">Создать аккаунт</string>
+    <string name="auth_back_to_login">Уже есть аккаунт? Войти</string>
+    <string name="profile_title">Профиль</string>
+    <string name="profile_total_km">Всего км</string>
+    <string name="profile_rides_count">Поездки</string>
+    <string name="profile_total_ascent">Подъём (м)</string>
+    <string name="profile_logout_button">Выйти из аккаунта</string>
+    <string name="feed_title">Лента сообщества</string>
+    <string name="splash_tagline">Велопутешествия, офлайн</string>
+    <!-- Ошибки авторизации -->
+    <string name="auth_error_invalid_email">Введите корректный email</string>
+    <string name="auth_error_weak_password">Пароль должен быть не менее 8 символов</string>
+    <string name="auth_error_empty_name">Введите имя</string>
+    <string name="auth_error_password_mismatch">Пароли не совпадают</string>
+    <string name="auth_error_terms">Примите условия использования</string>
+    <string name="auth_error_network">Ошибка сети. Проверьте подключение.</string>
+    <string name="auth_error_generic">Что-то пошло не так. Попробуйте снова.</string>
+
+    <!-- Достижения -->
+    <string name="profile_achievements_title">Достижения</string>
+    <string name="profile_achievements_first_100">Первая сотня</string>
+    <string name="profile_achievements_weekly_goal">Цель недели</string>
+    <string name="profile_achievements_100_rides">100 поездок</string>
+    <string name="profile_achievements_king_mountain">Царь горы</string>
+    <string name="profile_achievements_night_ride">Ночной заезд</string>
+    <string name="profile_achievements_explorer">Исследователь</string>
+
+    <!-- Гостевой профиль -->
+    <string name="profile_guest_title">Войдите в 2circle</string>
+    <string name="profile_guest_body">Синхронизируйте свои маршруты, сохраняйте историю поездок и присоединяйтесь к сообществу.</string>
+
+    <!-- Навигация -->
+    <string name="navigation_stop">Остановить навигацию</string>
+    <string name="navigation_eta">Осталось</string>
+    <string name="navigation_remaining">До финиша</string>
+    <string name="navigation_speed">Скорость</string>
+    <string name="navigation_off_route">Сход с маршрута — перерасчёт</string>
+    <string name="navigation_arrived">Вы прибыли</string>
+</resources>

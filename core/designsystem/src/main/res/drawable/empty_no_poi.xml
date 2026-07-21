@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Empty-state illustration: no POIs found in this area. A map pin with an empty search
+  circle — "we looked but there's nothing here".
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="120dp"
+    android:viewportWidth="200"
+    android:viewportHeight="120">
+    <!-- Pin outline -->
+    <path android:strokeColor="#3A3F45" android:strokeWidth="2" android:fillColor="#00000000" android:pathData="M70,30 C70,18 84,10 95,10 C106,10 120,18 120,30 C120,52 95,80 95,80 C95,80 70,52 70,30 Z" />
+    <!-- Inner empty circle -->
+    <path android:strokeColor="#3A3F45" android:strokeWidth="2" android:fillColor="#00000000" android:pathData="M95,25 m-12,0 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+    <!-- Magnifier for "we searched" -->
+    <path android:strokeColor="#FFC107" android:strokeWidth="4" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M130,70 m-20,0 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0" />
+    <path android:strokeColor="#FFC107" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M145,85 L170,110" />
+</vector>

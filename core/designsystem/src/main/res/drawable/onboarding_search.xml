@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Onboarding illustration #2: a magnifying glass over a place pin — the offline search
+  concept. Same dark card background for visual consistency across the three steps.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="160dp"
+    android:viewportWidth="240"
+    android:viewportHeight="160">
+    <path android:fillColor="#1B2229" android:pathData="M0,0 h240 v160 h-240 z" />
+    <!-- Faint grid -->
+    <path android:strokeColor="#2A3138" android:strokeWidth="1" android:pathData="M0,40 h240 M0,80 h240 M0,120 h240 M60,0 v160 M120,0 v160 M180,0 v160" />
+    <!-- Place pin -->
+    <path android:fillColor="#29B6F6" android:pathData="M90,55 C90,40 105,30 115,30 C125,30 140,40 140,55 C140,75 115,105 115,105 C115,105 90,75 90,55 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M115,45 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" />
+    <!-- Magnifier -->
+    <path android:strokeColor="#66BB6A" android:strokeWidth="6" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M150,70 m-25,0 a25,25 0 1,0 50,0 a25,25 0 1,0 -50,0" />
+    <path android:strokeColor="#66BB6A" android:strokeWidth="8" android:strokeLineCap="round" android:pathData="M168,88 L195,115" />
+</vector>

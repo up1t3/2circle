@@ -27,6 +27,12 @@ android {
         // Instrumentation tests need a Hilt-aware test runner to inject the
         // @HiltAndroidTest-annotated Application.
         testInstrumentationRunner = "com.twocircle.bike.HiltTestRunner"
+
+        buildConfigField(
+            "String",
+            "MANIFEST_URL",
+            "\"http://10.0.2.2:8765/manifest-emulator.json\"",
+        )
     }
 
     buildTypes {
@@ -73,6 +79,9 @@ dependencies {
     implementation(project(":feature:tracking"))
     implementation(project(":feature:tracks"))
     implementation(project(":feature:regions"))
+    implementation(project(":feature:poi"))
+    implementation(project(":feature:auth"))
+    implementation(project(":feature:social"))
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -97,6 +106,12 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // Core + lifecycle
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.datastore.preferences)
 
     // Logging
     implementation(libs.timber)

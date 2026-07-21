@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Onboarding illustration #3: a route line traced through points, with an export arrow
+  in the corner — the recording + GPX export concept.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="160dp"
+    android:viewportWidth="240"
+    android:viewportHeight="160">
+    <path android:fillColor="#1B2229" android:pathData="M0,0 h240 v160 h-240 z" />
+    <path android:strokeColor="#2A3138" android:strokeWidth="1" android:pathData="M0,40 h240 M0,80 h240 M0,120 h240 M60,0 v160 M120,0 v160 M180,0 v160" />
+    <!-- Recorded track -->
+    <path android:strokeColor="#66BB6A" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M30,120 L70,90 L110,110 L150,60 L190,40" />
+    <!-- Recorded points -->
+    <path android:fillColor="#FFFFFF" android:pathData="M30,120 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M70,90 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M110,110 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M150,60 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M190,40 m-4,0 a4,4 0 1,0 8,0 a4,4 0 1,0 -8,0" />
+    <!-- Export arrow (top-right) -->
+    <path android:strokeColor="#29B6F6" android:strokeWidth="4" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M200,130 L200,100 M188,112 L200,100 L212,112" />
+</vector>

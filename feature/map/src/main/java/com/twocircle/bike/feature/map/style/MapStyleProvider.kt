@@ -1,5 +1,7 @@
 package com.twocircle.bike.feature.map.style
 
+import java.util.Locale
+
 /**
  * Builds the MapLibre style JSON for an offline region.
  *
@@ -14,9 +16,15 @@ package com.twocircle.bike.feature.map.style
  *   3. landuse / green areas (subtle fill)
  *   4. transportation line (ROADS — the centrepiece, coloured by surface)
  *   5. transportation name (labels) — added in a later step
+ *   6. place-label (settlement names — locale-aware)
  *
  * The transportation layer uses a MapLibre `match` expression on the `surface` property
  * produced by tilemaker's Lua layer. Unknown surfaces fall back to [MapColors.UNKNOWN].
+ *
+ * The place-label layer uses a `coalesce` expression to pick the localised name:
+ * the locale-specific OSM name (`name:ru`, `name:en`, …), then the English fallback
+ * (`name:en`), then the default `name`. The backend pipeline must write the relevant
+ * `name:<lang>` attributes into the vector tiles — see `backend/lua/2circle-process.lua`.
  *
  * Source-layer names ("water", "transportation", "landcover") follow the OpenMapTiles
  * vector schema — what tilemaker produces by default. If a future pipeline uses a
@@ -29,6 +37,7 @@ object MapStyleProvider {
         const val WATER = "water"
         const val LANDCOVER = "landcover"
         const val TRANSPORTATION = "transportation"
+        const val TRANSPORTATION_NAME = "transportation_name"
         const val BOUNDARY = "boundary"
         const val PLACE = "place"
     }
@@ -38,8 +47,25 @@ object MapStyleProvider {
      *
      * The path is interpolated into the `mbtiles://` scheme exactly as MapLibre expects:
      * three slashes, then the absolute path. File existence is the caller's responsibility.
+     *
+     * [locale] drives the name-field priority in the place-label layer. A null locale
+     * falls back to the bare `{name}` field (legacy behaviour); a real locale emits
+     * `["coalesce", ["get","name:<lang>"], ["get","name:en"], ["get","name"]]`, so a
+     * Russian user sees Russian labels when the tile has `name:ru`, otherwise English,
+     * otherwise the default OSM name.
      */
-    fun buildStyleJson(mbtilesPath: String, sourceName: String = "region"): String = buildString {
+    fun buildStyleJson(
+        mbtilesPath: String,
+        sourceName: String = "region",
+        locale: Locale? = null,
+        isDark: Boolean = true,
+    ): String = buildString {
+        val bg = if (isDark) DarkMapColors.BACKGROUND else LightMapColors.BACKGROUND
+        val water = if (isDark) DarkMapColors.WATER else LightMapColors.WATER
+        val land = if (isDark) DarkMapColors.LAND else LightMapColors.LAND
+        val textColor = if (isDark) DarkMapColors.TEXT_COLOR else LightMapColors.TEXT_COLOR
+        val textHalo = if (isDark) DarkMapColors.TEXT_HALO else LightMapColors.TEXT_HALO
+
         append("{")
         append("\"version\": 8,")
         append("\"name\": \"2circle-region\",")
@@ -49,19 +75,22 @@ object MapStyleProvider {
         append("\"url\": \"mbtiles://").append(escapePath(mbtilesPath)).append("\"")
         append("}")
         append("},")
+        append("\"glyphs\": \"asset://fonts/{fontstack}/{range}.pbf\",")
 
         append("\"layers\": [")
-        appendBackgroundLayer()
+        appendBackgroundLayer(bg)
         append(",")
-        appendWaterLayer(sourceName)
+        appendWaterLayer(sourceName, water)
         append(",")
-        appendLandcoverLayer(sourceName)
+        appendLandcoverLayer(sourceName, land)
         append(",")
         appendBoundaryLayer(sourceName)
         append(",")
         appendRoadLayer(sourceName)
         append(",")
-        appendPlaceLayer(sourceName)
+        appendTransportationNameLayer(sourceName, locale, textColor, textHalo)
+        append(",")
+        appendPlaceLayer(sourceName, locale, textColor, textHalo)
         append("]")
 
         append("}")
@@ -106,12 +135,13 @@ object MapStyleProvider {
         appendSurfaceCase("rock", MapColors.ROCK)
         append("\"").append(MapColors.UNKNOWN).append("\"") // default
         append("],")
-        // line-width scales with zoom: thin at z10, ~3px at z15, ~6px at z20.
+        // line-width scales with zoom: visible at overview (z8) and properly thick at street level.
+        // Previous values (0.5 at z10) drew sub-pixel lines that were effectively invisible.
         append("\"line-width\": {")
         append("\"base\": 1.2,")
-        append("\"stops\": [[10, 0.5], [13, 1.0], [15, 2.5], [17, 4.0], [20, 6.0]]")
+        append("\"stops\": [[4, 0.3], [8, 0.8], [10, 1.5], [13, 2.5], [15, 4.0], [17, 5.5], [20, 8.0]]")
         append("},")
-        append("\"line-opacity\": 0.92")
+        append("\"line-opacity\": 0.95")
         append("}")
         append("}")
     }
@@ -120,31 +150,31 @@ object MapStyleProvider {
         append("\"").append(tag).append("\", \"").append(color).append("\",")
     }
 
-    private fun StringBuilder.appendBackgroundLayer() {
+    private fun StringBuilder.appendBackgroundLayer(bgColor: String) {
         append("{")
         append("\"id\": \"background\",")
         append("\"type\": \"background\",")
-        append("\"paint\": { \"background-color\": \"").append(MapColors.BACKGROUND).append("\" }")
+        append("\"paint\": { \"background-color\": \"").append(bgColor).append("\" }")
         append("}")
     }
 
-    private fun StringBuilder.appendWaterLayer(source: String) {
+    private fun StringBuilder.appendWaterLayer(source: String, waterColor: String) {
         append("{")
         append("\"id\": \"water\",")
         append("\"type\": \"fill\",")
         append("\"source\": \"").append(source).append("\",")
         append("\"source-layer\": \"").append(Layers.WATER).append("\",")
-        append("\"paint\": { \"fill-color\": \"").append(MapColors.WATER).append("\" }")
+        append("\"paint\": { \"fill-color\": \"").append(waterColor).append("\" }")
         append("}")
     }
 
-    private fun StringBuilder.appendLandcoverLayer(source: String) {
+    private fun StringBuilder.appendLandcoverLayer(source: String, landColor: String) {
         append("{")
         append("\"id\": \"landcover\",")
         append("\"type\": \"fill\",")
         append("\"source\": \"").append(source).append("\",")
         append("\"source-layer\": \"").append(Layers.LANDCOVER).append("\",")
-        append("\"paint\": { \"fill-color\": \"").append(MapColors.LAND).append("\", \"fill-opacity\": 0.6 }")
+        append("\"paint\": { \"fill-color\": \"").append(landColor).append("\", \"fill-opacity\": 0.6 }")
         append("}")
     }
 
@@ -158,24 +188,97 @@ object MapStyleProvider {
         append("}")
     }
 
-    private fun StringBuilder.appendPlaceLayer(source: String) {
-        // Minimal text layer for settlements. Colour is muted so the surface scheme
-        // stays the dominant visual signal.
+    private fun StringBuilder.appendTransportationNameLayer(
+        source: String,
+        locale: Locale?,
+        textColor: String,
+        textHalo: String,
+    ) {
+        append("{")
+        append("\"id\": \"road-name\",")
+        append("\"type\": \"symbol\",")
+        append("\"source\": \"").append(source).append("\",")
+        append("\"source-layer\": \"").append(Layers.TRANSPORTATION_NAME).append("\",")
+        append("\"minzoom\": 12,")
+        append("\"layout\": {")
+        append("\"text-field\": ").append(roadNameTextField(locale)).append(",")
+        append("\"text-size\": 10,")
+        append("\"text-font\": [\"Open Sans Semibold\"],")
+        append("\"text-anchor\": \"center\",")
+        append("\"text-rotation-alignment\": \"map\",")
+        append("\"text-max-angle\": 45,")
+        append("\"symbol-placement\": \"line\"")
+        append("},")
+        append("\"paint\": {")
+        append("\"text-color\": \"").append(textColor).append("\",")
+        append("\"text-halo-color\": \"").append(textHalo).append("\",")
+        append("\"text-halo-width\": 1.0")
+        append("}")
+        append("}")
+    }
+
+    private fun roadNameTextField(locale: Locale?): String {
+        val lang = locale?.language?.takeIf { it.isNotEmpty() }
+        return buildString {
+            append("[\"coalesce\",")
+            if (lang != null) {
+                append("[\"get\", \"name:").append(lang).append("\"],")
+            }
+            append("[\"get\", \"name:en\"],")
+            append("[\"get\", \"name:latin\"],")
+            append("[\"get\", \"ref\"]")
+            append("]")
+        }
+    }
+
+    private fun StringBuilder.appendPlaceLayer(
+        source: String,
+        locale: Locale?,
+        textColor: String,
+        textHalo: String,
+    ) {
         append("{")
         append("\"id\": \"place-label\",")
         append("\"type\": \"symbol\",")
         append("\"source\": \"").append(source).append("\",")
         append("\"source-layer\": \"").append(Layers.PLACE).append("\",")
         append("\"layout\": {")
-        append("\"text-field\": \"{name}\",")
-        append("\"text-size\": 11")
+        append("\"text-field\": ").append(placeTextFieldExpression(locale)).append(",")
+        append("\"text-size\": 12,")
+        append("\"text-font\": [\"Open Sans Semibold\"],")
+        append("\"text-anchor\": \"center\",")
+        append("\"text-allow-overlap\": false,")
+        append("\"text-ignore-placement\": false")
         append("},")
         append("\"paint\": {")
-        append("\"text-color\": \"#C8CCD2\",")
-        append("\"text-halo-color\": \"#000000\",")
-        append("\"text-halo-width\": 1.2")
+        append("\"text-color\": \"").append(textColor).append("\",")
+        append("\"text-halo-color\": \"").append(textHalo).append("\",")
+        append("\"text-halo-width\": 1.5")
         append("}")
         append("}")
+    }
+
+    /**
+     * Build the MapLibre `text-field` expression for place labels.
+     *
+     * - No locale → `"{name}"` (plain token, legacy behaviour).
+     * - Locale set → `["coalesce", ["get","name:<lang>"], ["get","name:en"], ["get","name"]]`.
+     *
+     * `languageTag` lowercases the language code to match OSM tag conventions
+     * (`name:ru`, not `name:RU`). Region variants (`ru-RU`, `es-MX`) are stripped —
+     * OSM doesn't tag region variants, so `es-MX` → `name:es`.
+     */
+    private fun placeTextFieldExpression(locale: Locale?): String {
+        if (locale == null) return "\"{name}\""
+        val lang = locale.language.takeIf { it.isNotEmpty() } ?: return "\"{name}\""
+        return buildString {
+            append("[\"coalesce\",")
+            append("[\"get\", \"name:").append(lang).append("\"],")
+            // Skip the duplicate `name:en` if the locale is already English.
+            if (lang != "en") append("[\"get\", \"name:en\"],")
+            append("[\"get\", \"name\"]")
+            append("]")
+        }
     }
 
     /**

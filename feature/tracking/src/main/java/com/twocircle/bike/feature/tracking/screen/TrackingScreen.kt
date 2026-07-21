@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Stop
@@ -23,11 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.twocircle.bike.common.format.Format
+import com.twocircle.bike.designsystem.R
 import com.twocircle.bike.designsystem.components.TelemetryStat
+import com.twocircle.bike.designsystem.l10n.LocalUnitStrings
 import com.twocircle.bike.feature.tracking.model.TrackingState
 import com.twocircle.bike.feature.tracking.service.LocationForegroundService
 import java.time.Duration
@@ -55,7 +59,10 @@ fun TrackingScreen(
         modifier = modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Ride", style = MaterialTheme.typography.titleLarge)
+        Text(
+            stringResource(R.string.tracking_title_ride),
+            style = MaterialTheme.typography.titleLarge,
+        )
 
         TelemetryCard(state = state)
 
@@ -72,6 +79,7 @@ fun TrackingScreen(
 @Composable
 private fun TelemetryCard(state: TrackingState) {
     val agg = state.aggregates
+    val units = LocalUnitStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -82,16 +90,21 @@ private fun TelemetryCard(state: TrackingState) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 TelemetryStat(
-                    value = Format.distance(agg.distanceMeters),
-                    caption = "distance",
+                    value = Format.distance(agg.distanceMeters, meter = units.meter, kilometer = units.kilometer),
+                    caption = stringResource(R.string.stat_caption_distance),
                 )
                 TelemetryStat(
-                    value = Format.speed(agg.avgSpeedMps),
-                    caption = "avg",
+                    value = Format.speed(agg.avgSpeedMps, kmh = units.kmh),
+                    caption = stringResource(R.string.stat_caption_avg),
                 )
                 TelemetryStat(
-                    value = Format.duration(Duration.ofSeconds(agg.movingSeconds)),
-                    caption = "moving",
+                    value = Format.duration(
+                        Duration.ofSeconds(agg.movingSeconds),
+                        second = units.second,
+                        minute = units.minute,
+                        hour = units.hour,
+                    ),
+                    caption = stringResource(R.string.stat_caption_moving),
                 )
             }
             Spacer(Modifier.height(16.dp))
@@ -100,17 +113,17 @@ private fun TelemetryCard(state: TrackingState) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 TelemetryStat(
-                    value = Format.elevation(agg.ascentMeters),
-                    caption = "ascent",
+                    value = Format.elevation(agg.ascentMeters, meter = units.meter),
+                    caption = stringResource(R.string.stat_caption_ascent),
                     valueColor = MaterialTheme.colorScheme.primary,
                 )
                 TelemetryStat(
-                    value = Format.speed(agg.maxSpeedMps),
-                    caption = "max",
+                    value = Format.speed(agg.maxSpeedMps, kmh = units.kmh),
+                    caption = stringResource(R.string.stat_caption_max),
                 )
                 TelemetryStat(
                     value = "${agg.pointCount}",
-                    caption = "points",
+                    caption = stringResource(R.string.stat_caption_points),
                 )
             }
         }
@@ -130,8 +143,8 @@ private fun Controls(isRecording: Boolean, onStart: () -> Unit, onStop: () -> Un
                 modifier = Modifier.fillMaxWidth().height(56.dp),
             ) {
                 Icon(Icons.Outlined.Stop, contentDescription = null)
-                Spacer(Modifier.height(0.dp))
-                Text("  Stop")
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.tracking_action_stop))
             }
         } else {
             Button(
@@ -139,7 +152,8 @@ private fun Controls(isRecording: Boolean, onStart: () -> Unit, onStop: () -> Un
                 modifier = Modifier.fillMaxWidth().height(56.dp),
             ) {
                 Icon(Icons.Outlined.PlayArrow, contentDescription = null)
-                Text("  Start ride")
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.tracking_action_start))
             }
         }
     }

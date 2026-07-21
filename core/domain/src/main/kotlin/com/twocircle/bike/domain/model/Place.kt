@@ -20,7 +20,11 @@ data class Place(
     val extra: Map<String, String> = emptyMap(),
 ) {
     enum class Kind {
-        City, Town, Village, Hamlet, Spring, MountainPass, Campsite, Viewpoint,
-        BicycleService, Other,
+        City, Town, Village, Hamlet,
+        Spring, MountainPass, Campsite, Viewpoint,
+        BicycleService, BicycleRental,
+        Pharmacy, Fuel, Cafe, Restaurant, Hospital, Atm,
+        Water, Hotel, Shop,
+        Other,
     }
 }

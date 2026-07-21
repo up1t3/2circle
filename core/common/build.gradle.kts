@@ -20,6 +20,9 @@ kotlin {
 
 dependencies {
     api(libs.kotlinx.coroutines.core)
+    // javax.inject annotations (Qualifier) — used by Hilt qualifiers that live in this
+    // module so feature modules can reference them without depending on :app.
+    api("javax.inject:javax.inject:1")
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

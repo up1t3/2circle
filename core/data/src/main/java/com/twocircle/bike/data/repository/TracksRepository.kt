@@ -128,6 +128,60 @@ class TracksRepository @Inject constructor(
         Outcome.Failure(Failure.Storage.Inaccessible(e))
     }
 
+    /**
+     * Import a GPX file as a new track. Creates the TrackEntity + all TrackPointEntity rows
+     * in one call. Called from the TracksViewModel when the user picks a .gpx file via SAF.
+     */
+    suspend fun importTrack(
+        trackId: String,
+        name: String,
+        startedAtMs: Long,
+        points: List<TrackPointEntity>,
+    ): Outcome<Unit> = try {
+        // Compute basic aggregates from points.
+        var dist = 0.0
+        var ascent = 0.0
+        var descent = 0.0
+        var prevEle: Double? = null
+        var prevLat: Double? = null
+        var prevLon: Double? = null
+        for (pt in points) {
+            if (prevLat != null && prevLon != null) {
+                val earthRadius = 6371000.0
+                val dLat = Math.toRadians(pt.lat - prevLat)
+                val dLon = Math.toRadians(pt.lon - prevLon)
+                val a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(Math.toRadians(prevLat)) * Math.cos(Math.toRadians(pt.lat)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+                dist += earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+            }
+            if (pt.ele != null && prevEle != null) {
+                val d = pt.ele - prevEle
+                if (d > 0) ascent += d else descent += -d
+            }
+            prevEle = pt.ele
+            prevLat = pt.lat
+            prevLon = pt.lon
+        }
+        val now = System.currentTimeMillis()
+        val track = TrackEntity(
+            id = trackId,
+            name = name,
+            startedAtMs = startedAtMs,
+            endedAtMs = now,
+            status = TrackStatus.Finished,
+            source = com.twocircle.bike.data.db.entity.TrackSource.GpxImport,
+            distanceMeters = dist,
+            ascentMeters = ascent,
+            descentMeters = descent,
+        )
+        trackDao.upsert(track)
+        if (points.isNotEmpty()) trackPointDao.insertAll(points)
+        Outcome.Success(Unit)
+    } catch (e: IOException) {
+        Outcome.Failure(Failure.Storage.Inaccessible(e))
+    }
+
     private fun ittoSummary(e: TrackEntity): TrackSummary = TrackSummary(
         id = e.id,
         name = e.name,

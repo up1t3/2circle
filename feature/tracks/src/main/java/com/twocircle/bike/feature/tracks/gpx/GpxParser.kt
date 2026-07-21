@@ -6,6 +6,8 @@ import org.w3c.dom.Element
 import org.xml.sax.InputSource
 import java.io.StringReader
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Parse a GPX 1.1 XML string into a [GpxDocument].
@@ -22,7 +24,8 @@ import javax.xml.parsers.DocumentBuilderFactory
  *
  * Pure: takes a String, returns a [GpxDocument]. No I/O. Unit-testable on JVM.
  */
-object GpxParser {
+@Singleton
+class GpxParser @Inject constructor() {
 
     fun parse(xml: String): GpxDocument {
         val root = try {

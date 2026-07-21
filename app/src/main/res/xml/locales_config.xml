@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Per-app language config — Android 13+ reads this to populate the system Settings
+  "App language" screen. AppCompatDelegate.setApplicationLocales also uses it as the
+  universe of locales it can switch between. Keep in lockstep with resConfigs in
+  app/build.gradle.kts and the values-* directories.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="ru" />
+    <locale android:name="es" />
+</locale-config>

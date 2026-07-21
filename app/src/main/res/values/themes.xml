@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  AppCompat parent so AppCompatActivity / AppCompatDelegate.setApplicationLocales work.
+  The visual theme is still Compose-driven (BikeTheme); this XML theme only governs the
+  window chrome and bridges to AppCompat's per-app locale + DayNight handling.
+-->
 <resources>
-    <style name="Theme.TwoCircle" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.TwoCircle" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>

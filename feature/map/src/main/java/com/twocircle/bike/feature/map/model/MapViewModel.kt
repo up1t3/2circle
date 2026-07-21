@@ -1,34 +1,38 @@
 package com.twocircle.bike.feature.map.model
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.twocircle.bike.common.outcome.Failure
+import com.twocircle.bike.data.db.entity.RegionInstallState
 import com.twocircle.bike.data.repository.RegionsRepository
 import com.twocircle.bike.data.filesystem.RegionAssets
 import com.twocircle.bike.feature.map.style.MapStyleProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Locale
 import javax.inject.Inject
 
 /**
  * Map screen view model.
  *
- * On init, resolves which region to render. The strategy is simple for v1: if there is
- * exactly one installed region, use it; if there are several, the user picks later (the
- * regions screen); if there are none, show the [MapUiState.NoRegion] prompt.
- *
- * Once a region is selected, the style JSON is built from its mbtiles path. That JSON
- * string is the entire handoff to the BikeMap Composable — no SDK references cross the
- * VM boundary, which keeps the VM testable without Robolectric.
+ * Reactively observes installed regions — when a region download completes (in the
+ * Regions tab), the map screen picks it up automatically without needing a manual
+ * refresh. This was a bug in the original one-shot implementation that required
+ * restarting the app after downloading.
  */
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val regionsRepository: RegionsRepository,
     private val regionAssets: RegionAssets,
+    @ApplicationContext private val appContext: Context,
     val trackOverlay: com.twocircle.bike.domain.TrackOverlay,
 ) : ViewModel() {
 
@@ -36,18 +40,16 @@ class MapViewModel @Inject constructor(
     val state: StateFlow<MapUiState> = _state.asStateFlow()
 
     init {
-        resolveActiveRegion()
+        // Reactively observe installed regions. When the DB changes (download completes,
+        // region deleted), we re-resolve the active region automatically.
+        regionsRepository.allFlow()
+            .onEach { _ -> resolveActiveRegion() }
+            .launchIn(viewModelScope)
     }
-
-    /** Re-resolve the active region (e.g. after a download completes). */
-    fun refresh() = resolveActiveRegion()
 
     private fun resolveActiveRegion() {
         viewModelScope.launch {
-            _state.value = MapUiState.Loading
-            // For v1 we snapshot the first installed region. Reactive filtering is added
-            // when the regions screen ships (Step 8) and selects an explicit active region.
-            val firstInstalled = collectFirstInstalled()
+            val firstInstalled = regionsRepository.activeRegionOrNull()
             if (firstInstalled == null) {
                 _state.value = MapUiState.NoRegion
                 return@launch
@@ -59,7 +61,16 @@ class MapViewModel @Inject constructor(
                 return@launch
             }
             val path = regionAssets.mbtilesPath(firstInstalled).absolutePath
-            val styleJson = MapStyleProvider.buildStyleJson(path)
+            Timber.d("MapViewModel: mbtiles path=%s, exists=%b, size=%d",
+                path,
+                regionAssets.mbtilesPath(firstInstalled).exists(),
+                regionAssets.mbtilesPath(firstInstalled).length(),
+            )
+            // Resolve the locale from app config so the place-label expression picks
+            // name:<lang> first. AppCompatDelegate.setApplicationLocales() and the
+            // per-app language API both update this on Android 13+.
+            val locale = appContext.resources.configuration.locales[0]
+            val styleJson = MapStyleProvider.buildStyleJson(path, locale = locale)
             val camera = MapCamera(
                 lat = (firstInstalled.boundsMinLat + firstInstalled.boundsMaxLat) / 2.0,
                 lon = (firstInstalled.boundsMinLon + firstInstalled.boundsMaxLon) / 2.0,
@@ -73,10 +84,18 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private suspend fun collectFirstInstalled(): com.twocircle.bike.data.db.entity.RegionEntity? = try {
-        regionsRepository.firstInstalledOrNull()
-    } catch (e: Exception) {
-        Timber.e(e, "Failed to collect regions")
-        null
+    /** Rebuild style JSON when user or system changes theme. */
+    fun rebuildStyle(isDark: Boolean) {
+        viewModelScope.launch {
+            val firstInstalled = regionsRepository.activeRegionOrNull() ?: return@launch
+            if (!regionAssets.hasTiles(firstInstalled)) return@launch
+            val path = regionAssets.mbtilesPath(firstInstalled).absolutePath
+            val locale = appContext.resources.configuration.locales[0]
+            val styleJson = MapStyleProvider.buildStyleJson(path, locale = locale, isDark = isDark)
+            val currentReady = _state.value as? MapUiState.Ready
+            if (currentReady != null) {
+                _state.value = currentReady.copy(styleJson = styleJson)
+            }
+        }
     }
 }

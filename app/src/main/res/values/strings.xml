@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Default strings = English. Android falls back to `values/` for any locale without
-  a specific `values-<lang>/` directory, so English-as-default covers the long tail
-  (fr, de, zh, etc.) instead of showing Russian to a user who reads neither.
+  App-shell-only strings. Everything reachable from feature modules lives in
+  :core:designsystem/strings.xml so features can reference it without depending on :app.
 
-  Supported UI locales in v1: en (default), ru, es.
+  Kept here: app_name, navigation labels, permission flows, attribution — strings
+  that only the :app shell itself reads.
+
+  Supported UI locales in v2: en (default), ru, es.
 -->
 <resources>
     <string name="app_name">2circle</string>
 
-    <!-- Top-level destinations -->
+    <!-- Top-level navigation -->
     <string name="nav_map">Map</string>
     <string name="nav_routes">Routes</string>
     <string name="nav_tracks">Tracks</string>
     <string name="nav_regions">Regions</string>
 
     <!-- Permissions -->
+    <string name="perm_location_title">Location access</string>
+    <string name="perm_dismiss_not_now">Not now</string>
     <string name="perm_location_rationale">
         2circle needs location access to record your ride and compute live ETA.
         Grant access to show your position and measure distance.
@@ -23,7 +27,7 @@
     <string name="perm_location_action">Grant access</string>
     <string name="perm_location_settings">Open settings</string>
     <string name="perm_background_rationale">
-        To keep recording while the screen is off, allow \"Allow all the time\".
+        To keep recording while the screen is off, choose \"Allow all the time\".
         We only use this during an active ride.
     </string>
     <string name="perm_notifications_rationale">

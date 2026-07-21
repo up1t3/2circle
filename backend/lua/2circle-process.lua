@@ -13,7 +13,12 @@ preferred_language_attribute = "name:latin"
 -- If OSM's name tag differs, then write it into this attribute (usually "name_int"):
 default_language_attribute = "name_int"
 -- Also write these languages if they differ - for example, { "de", "fr" }
-additional_languages = { }
+--
+-- 2circle: we write both Russian (ru) and English (en) so the Android client can
+-- pick the right label via a MapLibre `coalesce` expression in the style JSON:
+-- `["coalesce", ["get","name:ru"], ["get","name:en"], ["get","name"]]`.
+-- See feature/map/src/main/java/.../style/MapStyleProvider.kt — placeTextFieldExpression.
+additional_languages = { "ru", "en" }
 --------
 
 -- Enter/exit Tilemaker

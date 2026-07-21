@@ -183,10 +183,10 @@ class LocationForegroundService : Service() {
             if (mgr.getNotificationChannel(CHANNEL_ID) == null) {
                 val channel = NotificationChannel(
                     CHANNEL_ID,
-                    "Ride recording",
+                    getString(com.twocircle.bike.designsystem.R.string.notif_channel_ride_recording_name),
                     NotificationManager.IMPORTANCE_LOW,
                 ).apply {
-                    description = "Persistent notification while a ride is being recorded."
+                    description = getString(com.twocircle.bike.designsystem.R.string.notif_channel_ride_recording_desc)
                     setShowBadge(false)
                 }
                 mgr.createNotificationChannel(channel)
@@ -196,16 +196,13 @@ class LocationForegroundService : Service() {
 
     private fun buildNotification(state: com.twocircle.bike.feature.tracking.model.TrackingState): Notification {
         val agg = state.aggregates
-        val content = buildString {
-            append(formatKm(agg.distanceMeters))
-            append("  ·  ")
-            append(formatMin(agg.movingSeconds))
-            if (agg.ascentMeters > 0) {
-                append("  ·  ↑")
-                append(agg.ascentMeters.toInt())
-                append("m")
-            }
-        }
+        val ascentPart = if (agg.ascentMeters > 0) agg.ascentMeters.toInt().toString() else "—"
+        val content = getString(
+            com.twocircle.bike.designsystem.R.string.notif_recording_content_fmt,
+            formatKm(agg.distanceMeters),
+            formatMin(agg.movingSeconds),
+            ascentPart,
+        )
         // PendingIntent: tapping the notification reopens the app. The host activity
         // is wired up by the :app manifest; here we just launch the launcher intent.
         val launch = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
@@ -214,7 +211,7 @@ class LocationForegroundService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("2circle — recording")
+            .setContentTitle(getString(com.twocircle.bike.designsystem.R.string.notif_recording_title))
             .setContentText(content)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)
@@ -224,13 +221,17 @@ class LocationForegroundService : Service() {
             .build()
     }
 
-    private fun formatKm(m: Double): String =
-        String.format(java.util.Locale.US, "%.1f km", m / 1000.0)
+    private fun formatKm(m: Double): String {
+        val km = getString(com.twocircle.bike.designsystem.R.string.format_unit_kilometer)
+        return String.format(java.util.Locale.US, "%.1f $km", m / 1000.0)
+    }
 
     private fun formatMin(sec: Long): String {
         val h = sec / 3600
         val m = (sec % 3600) / 60
-        return if (h > 0) "${h}h ${m}m" else "${m}m"
+        val hour = getString(com.twocircle.bike.designsystem.R.string.format_unit_hour)
+        val min = getString(com.twocircle.bike.designsystem.R.string.format_unit_minute)
+        return if (h > 0) "$h$hour $m$min" else "$m$min"
     }
 
     companion object {

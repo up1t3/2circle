@@ -26,6 +26,8 @@ android {
     // style-JSON parser tests run without Robolectric.
     testOptions {
         unitTests.isReturnDefaultValues = true
+        // Robolectric needs access to merged assets/resources at test time.
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -34,6 +36,8 @@ dependencies {
     api(project(":core:domain"))
     api(project(":core:designsystem"))
     implementation(project(":core:data"))
+    // Poi model for the POI marker layer rendered inside BikeMap.
+    api(project(":feature:poi"))
 
     // MapLibre Native — offline vector tiles + runtime styling.
     api(libs.maplibre.android)
@@ -54,6 +58,10 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
+
+    // Location — for the my-location FAB (one-shot "find me").
+    implementation(libs.play.services.location)
 
     // Timber
     implementation(libs.timber)
@@ -63,4 +71,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.json)
+    // Robolectric — runs asset-bundling checks on the JVM without an emulator.
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }

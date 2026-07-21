@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Spanish (es). -->
+<!-- Spanish (es). App-shell-only strings. -->
 <resources>
     <string name="app_name">2circle</string>
 
-    <!-- Top-level destinations -->
+    <!-- Top-level navigation -->
     <string name="nav_map">Mapa</string>
     <string name="nav_routes">Rutas</string>
     <string name="nav_tracks">Recorridos</string>
     <string name="nav_regions">Regiones</string>
 
     <!-- Permissions -->
+    <string name="perm_location_title">Acceso a la ubicación</string>
+    <string name="perm_dismiss_not_now">Ahora no</string>
     <string name="perm_location_rationale">
         2circle necesita acceso a la ubicación para registrar tu ruta y calcular el ETA en vivo.
         Concede acceso para mostrar tu posición y medir la distancia.

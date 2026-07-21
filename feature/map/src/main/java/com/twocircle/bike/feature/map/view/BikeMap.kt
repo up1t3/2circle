@@ -15,6 +15,7 @@ import org.maplibre.android.MapLibre
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.Style
+import timber.log.Timber
 
 /**
  * MapLibre MapView wrapped for Compose.
@@ -78,7 +79,17 @@ fun BikeMap(
     // Load (or reload) the style whenever it changes. Runs once per style.
     LaunchedEffect(styleJson) {
         mapView.getMapAsync { map ->
-            map.setStyle(Style.Builder().fromJson(styleJson)) {
+            Timber.d(
+                "BikeMap: loading style, len=%d, camera=(%.4f,%.4f) z=%.1f",
+                styleJson.length, initialCamera.lat, initialCamera.lon, initialCamera.zoom,
+            )
+            Timber.d("BikeMap: style JSON=%s", styleJson)
+            map.setStyle(Style.Builder().fromJson(styleJson)) { style ->
+                Timber.d(
+                    "BikeMap: style loaded OK, sources=%s, layerCount=%d",
+                    style.sources.map { it.id },
+                    style.layers.size,
+                )
                 controller.attach(map)
                 map.cameraPosition = org.maplibre.android.camera.CameraPosition.Builder()
                     .target(org.maplibre.android.geometry.LatLng(initialCamera.lat, initialCamera.lon))
@@ -88,6 +99,10 @@ fun BikeMap(
                     .build()
                 onMapReady(map)
             }
+            // NOTE: tap and long-press handlers are registered by the host in onMapReady
+            // (MapScreen adds the real POI hit-test tap handler + long-press for
+            // waypoint addition). We don't add a diagnostic listener here to avoid
+            // consuming taps that the host needs to intercept.
         }
     }
 

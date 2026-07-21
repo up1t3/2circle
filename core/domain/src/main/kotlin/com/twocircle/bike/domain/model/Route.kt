@@ -65,12 +65,17 @@ data class Segment(
     }
 }
 
-/** BRouter profile bundle, matching files shipped in assets/routing-profiles/. */
+/**
+ * BRouter profile bundle, matching files shipped in assets/routing-profiles/.
+ *
+ * Localised display names live in `:core:designsystem` (`RoutingProfile.displayNameRes()`)
+ * — kept out of this pure-Kotlin domain layer so it stays free of Android resource deps.
+ */
 @Serializable
-enum class RoutingProfile(val displayName: String, val brouterProfileFile: String) {
-    Touring("Туринг", "trekking.brf"),
-    Road("Шоссе", "fastbike.brf"),
-    Mtb("МТБ", "mundo.brf"),
+enum class RoutingProfile(val brouterProfileFile: String) {
+    Touring("trekking.brf"),
+    Road("fastbike.brf"),
+    Mtb("mtb.brf"),
 }
 
 /**

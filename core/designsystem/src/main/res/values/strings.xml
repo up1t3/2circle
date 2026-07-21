@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Centralised UI strings in :core:designsystem.
+
+  Rationale: every feature module (map/search/routing/tracking/tracks/regions) already
+  depends on :core:designsystem for theme/components, so this is the one place where
+  shared user-visible strings live without creating a circular dependency on :app.
+  :app keeps only app_name, navigation labels, permission flows and attribution —
+  strings that only the shell needs.
+
+  Supported UI locales in v2: en (default), ru, es.
+-->
+<resources>
+    <!-- ============================================================ -->
+    <!-- Shared actions                                               -->
+    <!-- ============================================================ -->
+    <string name="action_retry">Retry</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_download">Download</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_done">Done</string>
+
+    <!-- ============================================================ -->
+    <!-- Map screen                                                   -->
+    <!-- ============================================================ -->
+    <string name="cd_map_search_fab">Search</string>
+    <string name="cd_map_start_ride_fab">Start ride</string>
+    <string name="cd_map_my_location_fab">My location</string>
+    <string name="cd_map_poi_fab">Points of interest</string>
+    <string name="map_no_region_title">No offline region downloaded yet</string>
+    <string name="map_no_region_body">
+        Open the Regions tab and download a region to start planning rides offline.
+    </string>
+    <string name="map_error_title">Couldn\'t load the map</string>
+    <string name="map_error_region_not_downloaded">Region not downloaded</string>
+    <string name="map_error_region_corrupted">Region files are corrupted</string>
+    <string name="map_error_storage_inaccessible">Storage is not accessible</string>
+    <string name="map_error_generic">Unexpected error</string>
+
+    <!-- ============================================================ -->
+    <!-- Search screen                                                -->
+    <!-- ============================================================ -->
+    <string name="search_placeholder">Search places, springs, passes…</string>
+    <string name="cd_search_clear">Clear</string>
+    <string name="search_hint_idle">Type a place name to search offline.</string>
+    <string name="search_hint_empty">No matches found.</string>
+    <string name="search_hint_no_region">
+        Download a region in the Regions tab to enable offline search.
+    </string>
+    <string name="search_error_generic">Search failed</string>
+    <string name="search_pop_fmt">pop %1$d</string>
+    <string name="search_action_to_route">To route</string>
+
+    <!-- ============================================================ -->
+    <!-- Route builder screen                                         -->
+    <!-- ============================================================ -->
+    <string name="route_builder_title">Route builder</string>
+    <string name="route_empty_hint">
+        Add waypoints from the map (long-press) or search to start building a route.
+    </string>
+    <string name="route_need_more_hint">Add at least one more point to plan a route</string>
+    <string name="waypoint_added">Waypoint added</string>
+    <string name="route_action_save">Save route</string>
+    <string name="saved_routes_title">Saved routes</string>
+    <string name="saved_routes_empty">No saved routes yet. Plan a route and save it.</string>
+    <string name="route_waypoint_coord_fmt">%1$.4f, %2$.4f</string>
+    <string name="cd_route_remove_waypoint">Remove waypoint</string>
+    <string name="route_preview_title">Planned route</string>
+    <string name="route_planning_status">Planning route…</string>
+    <string name="route_error_title">Couldn\'t plan route</string>
+    <string name="route_error_no_path">No route found between these points</string>
+    <string name="route_error_region_not_downloaded">Region not downloaded</string>
+    <string name="route_error_generic">Routing failed</string>
+    <string name="route_action_planning">Planning…</string>
+    <string name="route_action_plan">Plan route</string>
+    <string name="route_replan">Replan route</string>
+
+    <!-- ============================================================ -->
+    <!-- Tracking screen + notifications                              -->
+    <!-- ============================================================ -->
+    <string name="tracking_title_ride">Ride</string>
+    <string name="tracking_action_start">Start ride</string>
+    <string name="tracking_action_stop">Stop</string>
+    <string name="track_default_name_fmt">Ride %1$s</string>
+    <string name="notif_channel_ride_recording_name">Ride recording</string>
+    <string name="notif_channel_ride_recording_desc">
+        Persistent notification while a ride is being recorded.
+    </string>
+    <string name="notif_recording_title">2circle — recording</string>
+    <string name="notif_recording_content_fmt">%1$s  ·  %2$s  ·  ↑%3$s</string>
+
+    <!-- ============================================================ -->
+    <!-- Tracks screen + detail                                       -->
+    <!-- ============================================================ -->
+    <string name="tracks_title">Tracks</string>
+    <string name="tracks_empty_hint">No rides yet. Start one from the map screen.</string>
+    <string name="tracks_import_gpx">Import GPX</string>
+    <string name="tracks_error_generic">Couldn\'t load tracks</string>
+    <string name="tracks_row_stats_fmt">%1$s  ·  %2$s  ·  %3$s</string>
+    <string name="track_detail_not_found">Track not found.</string>
+    <string name="track_detail_error_generic">Couldn\'t load track</string>
+    <string name="track_detail_share_chooser_title">Share GPX</string>
+    <string name="track_detail_action_export_gpx">Export GPX</string>
+    <string name="track_detail_action_delete">Delete track</string>
+
+    <!-- ============================================================ -->
+    <!-- Regions screen                                               -->
+    <!-- ============================================================ -->
+    <string name="regions_title">Regions</string>
+    <string name="regions_empty_hint">No regions available. Tap Refresh to fetch the catalog.</string>
+    <string name="regions_error_generic">Couldn\'t load regions</string>
+    <string name="regions_row_meta_fmt">%1$s  ·  v%2$d</string>
+    <string name="region_dl_downloading_fmt">Downloading… %1$d%%</string>
+    <string name="region_dl_verifying">Verifying…</string>
+    <string name="region_dl_extracting">Extracting…</string>
+    <string name="region_dl_installed">Installed</string>
+    <string name="region_dl_failed_fmt">Failed: %1$s</string>
+    <string name="region_dl_failed_unknown">unknown</string>
+
+    <!-- ============================================================ -->
+    <!-- POI bottom sheet                                             -->
+    <!-- ============================================================ -->
+    <string name="poi_sheet_title">Points of interest</string>
+    <string name="poi_sheet_subtitle">Tap categories to show on map</string>
+    <string name="poi_empty_hint">No points in this area for selected categories.</string>
+    <string name="poi_action_add_to_route">Add to route</string>
+    <string name="poi_count_fmt">%1$d points</string>
+
+    <!-- POI detail card (shown when a marker is tapped on the map) -->
+    <string name="poi_detail_coords">%1$.5f, %2$.5f</string>
+    <string name="poi_detail_category">Category</string>
+    <string name="poi_detail_close">Close</string>
+
+    <!-- Waypoint action sheet (shown on map long-press) -->
+    <string name="waypoint_sheet_title">Add waypoint</string>
+    <string name="waypoint_sheet_coords">%1$.5f, %2$.5f</string>
+    <string name="waypoint_sheet_add">Add to route</string>
+    <string name="waypoint_sheet_whats_here">What\'s here?</string>
+    <string name="waypoint_sheet_cancel">Cancel</string>
+    <string name="waypoint_sheet_searching">Searching nearby…</string>
+    <string name="waypoint_sheet_found_name">%1$s</string>
+
+    <!-- ============================================================ -->
+    <!-- Stat captions (shared tracking + tracks)                    -->
+    <!-- ============================================================ -->
+    <string name="stat_distance">Distance</string>
+    <string name="stat_time">Time</string>
+    <string name="stat_ascent">Ascent</string>
+    <string name="stat_descent">Descent</string>
+    <string name="stat_caption_distance">distance</string>
+    <string name="stat_caption_avg">avg</string>
+    <string name="stat_caption_moving">moving</string>
+    <string name="stat_caption_ascent">ascent</string>
+    <string name="stat_caption_descent">descent</string>
+    <string name="stat_caption_max">max</string>
+    <string name="stat_caption_points">points</string>
+
+    <!-- ============================================================ -->
+    <!-- Routing profiles                                             -->
+    <!-- ============================================================ -->
+    <string name="profile_touring">Touring</string>
+    <string name="profile_road">Road</string>
+    <string name="profile_mtb">MTB</string>
+
+    <!-- ============================================================ -->
+    <!-- Waypoint role / source                                       -->
+    <!-- ============================================================ -->
+    <string name="waypoint_role_start">Start</string>
+    <string name="waypoint_role_via">Via</string>
+    <string name="waypoint_role_end">End</string>
+    <string name="waypoint_source_manual">Manual</string>
+    <string name="waypoint_source_search">Search</string>
+    <string name="waypoint_source_gps">GPS</string>
+    <string name="waypoint_source_gpx_import">GPX import</string>
+
+    <!-- ============================================================ -->
+    <!-- Surface legend                                               -->
+    <!-- ============================================================ -->
+    <string name="surface_asphalt">Asphalt</string>
+    <string name="surface_compacted">Compacted gravel</string>
+    <string name="surface_dirt">Dirt</string>
+    <string name="surface_sand">Sand</string>
+    <string name="surface_grass">Grass</string>
+    <string name="surface_rock">Rock</string>
+    <string name="surface_unknown">Unknown</string>
+
+    <!-- ============================================================ -->
+    <!-- Place kinds (search.db categories + POI categories)          -->
+    <!-- ============================================================ -->
+    <string name="place_kind_city">City</string>
+    <string name="place_kind_town">Town</string>
+    <string name="place_kind_village">Village</string>
+    <string name="place_kind_hamlet">Hamlet</string>
+    <string name="place_kind_spring">Spring</string>
+    <string name="place_kind_mountain_pass">Mountain pass</string>
+    <string name="place_kind_campsite">Campsite</string>
+    <string name="place_kind_viewpoint">Viewpoint</string>
+    <string name="place_kind_bicycle_service">Bicycle service</string>
+    <string name="place_kind_pharmacy">Pharmacy</string>
+    <string name="place_kind_fuel">Fuel station</string>
+    <string name="place_kind_cafe">Cafe</string>
+    <string name="place_kind_restaurant">Restaurant</string>
+    <string name="place_kind_hospital">Hospital</string>
+    <string name="place_kind_atm">ATM</string>
+    <string name="place_kind_water">Drinking water</string>
+    <string name="place_kind_bicycle_rental">Bike rental</string>
+    <string name="place_kind_hotel">Hotel</string>
+    <string name="place_kind_shop">Shop</string>
+    <string name="place_kind_other">Point</string>
+
+    <!-- ============================================================ -->
+    <!-- Region install states                                        -->
+    <!-- ============================================================ -->
+    <string name="region_install_state_installed">Installed</string>
+    <string name="region_install_state_not_installed">Not installed</string>
+    <string name="region_install_state_failed">Failed</string>
+    <string name="region_install_state_downloading">Downloading</string>
+    <string name="region_install_state_verifying">Verifying</string>
+    <string name="region_install_state_extracting">Extracting</string>
+
+    <!-- ============================================================ -->
+    <!-- Format units (used by Format.kt)                            -->
+    <!-- ============================================================ -->
+    <string name="format_unit_meter">m</string>
+    <string name="format_unit_kilometer">km</string>
+    <string name="format_unit_kmh">km/h</string>
+    <string name="format_unit_second">s</string>
+    <string name="format_unit_minute">min</string>
+    <string name="format_unit_hour">h</string>
+    <string name="format_unit_percent">%</string>
+    <string name="format_unit_gb">GB</string>
+    <string name="format_unit_mb">MB</string>
+    <string name="format_unit_kb">KB</string>
+    <string name="format_unit_b">B</string>
+
+    <!-- ============================================================ -->
+    <!-- Placeholder (dev-only)                                       -->
+    <!-- ============================================================ -->
+    <string name="placeholder_screen_title_fmt">2circle / %1$s</string>
+    <string name="placeholder_screen_body">This screen ships in an upcoming build.</string>
+
+    <!-- ============================================================ -->
+    <!-- Settings screen                                              -->
+    <!-- ============================================================ -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_language_system">System default</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_about_version">Version %1$s</string>
+    <string name="settings_about_attribution">Map data © OpenStreetMap contributors (ODbL). Elevation: Copernicus DEM GLO-30.</string>
+
+    <!-- ============================================================ -->
+    <!-- Onboarding                                                   -->
+    <!-- ============================================================ -->
+    <string name="onboarding_step_of">Step %1$d of %2$d</string>
+    <string name="onboarding_action_skip">Skip</string>
+    <string name="onboarding_action_next">Next</string>
+    <string name="onboarding_action_done">Get started</string>
+
+    <string name="onboarding_title_1">Offline maps for bike touring</string>
+    <string name="onboarding_body_1">Download a region once and ride without signal. Roads are coloured by surface — asphalt, gravel, sand — so you always know what\'s ahead.</string>
+
+    <string name="onboarding_title_2">Find places by name</string>
+    <string name="onboarding_body_2">Search villages, springs and passes offline. Long-press the map to drop a waypoint; chain them into a route.</string>
+
+    <string name="onboarding_title_3">Record and export</string>
+    <string name="onboarding_body_3">Crash-safe tracking keeps every GPS point, even if the app is killed mid-ride. Export your rides as GPX to share with anyone.</string>
+    <!-- UI Redesign Sprint 1 -->
+    <string name="map_cd_profile">Profile</string>
+    <string name="map_cd_search">Search</string>
+    <string name="map_cd_reset_bearing">Reset bearing</string>
+    <string name="map_poi_chip_all">All</string>
+    <string name="map_cd_my_location">My location</string>
+    <string name="map_action_navigate">Navigate</string>
+    <string name="map_action_add_waypoint">Add waypoint</string>
+    <string name="map_action_open_menu">Open menu</string>
+    <string name="map_action_close_menu">Close menu</string>
+    <string name="route_section_surfaces">Surfaces</string>
+    <string name="route_section_elevations">Elevation Profile</string>
+    <string name="route_no_elevation_data">No elevation data</string>
+    <string name="route_cd_drag_handle">Drag to reorder</string>
+    <!-- UI Redesign Sprint 2 -->
+    <string name="settings_section_account">Account</string>
+    <string name="settings_account_offline">Offline rider</string>
+    <string name="settings_account_default_name">2circle Rider</string>
+    <string name="settings_section_theme">Theme</string>
+    <string name="settings_theme_system">System default</string>
+    <string name="settings_theme_dark">Dark theme</string>
+    <string name="settings_theme_light">Light theme</string>
+    <string name="settings_section_units">Units</string>
+    <string name="settings_units_metric">Metric (km, m, km/h)</string>
+    <string name="settings_units_imperial">Imperial (mi, ft, mph)</string>
+    <string name="settings_section_maps">Maps</string>
+    <string name="settings_maps_active_region">Active Region</string>
+    <string name="settings_maps_region_loaded">Offline region loaded</string>
+    <string name="track_detail_delete_confirm_title">Delete track?</string>
+    <string name="track_detail_delete_confirm_body">This track will be permanently deleted.</string>
+    <string name="regions_active_badge">Active</string>
+    <!-- UI Redesign Sprint 3 -->
+    <string name="nav_feed">Feed</string>
+    <string name="nav_profile">Profile</string>
+    <string name="auth_login_title">Welcome back</string>
+    <string name="auth_email">Email address</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_login_button">Log In</string>
+    <string name="auth_google_button">Continue with Google</string>
+    <string name="auth_register_link">Don\'t have an account? Register</string>
+    <string name="auth_register_title">Create Account</string>
+    <string name="auth_display_name">Name</string>
+    <string name="auth_confirm_password">Confirm Password</string>
+    <string name="auth_terms_checkbox">I agree to Terms of Service</string>
+    <string name="auth_register_button">Create Account</string>
+    <string name="auth_back_to_login">Already have an account? Log In</string>
+    <string name="profile_title">Profile</string>
+    <string name="profile_total_km">Total km</string>
+    <string name="profile_rides_count">Rides</string>
+    <string name="profile_total_ascent">Ascent (m)</string>
+    <string name="profile_logout_button">Log Out</string>
+    <string name="feed_title">Community Feed</string>
+    <string name="splash_tagline">Bike touring, offline</string>
+
+    <!-- Auth error messages (resolved from AuthError enum in UI) -->
+    <string name="auth_error_invalid_email">Please enter a valid email address</string>
+    <string name="auth_error_weak_password">Password must be at least 8 characters</string>
+    <string name="auth_error_empty_name">Please enter your name</string>
+    <string name="auth_error_password_mismatch">Passwords do not match</string>
+    <string name="auth_error_terms">Please accept the terms of service</string>
+    <string name="auth_error_network">Network error. Check your connection.</string>
+    <string name="auth_error_generic">Something went wrong. Please try again.</string>
+
+    <!-- Profile achievements -->
+    <string name="profile_achievements_title">Achievements</string>
+    <string name="profile_achievements_first_100">First 100 km</string>
+    <string name="profile_achievements_weekly_goal">Weekly Goal</string>
+    <string name="profile_achievements_100_rides">100 Rides</string>
+    <string name="profile_achievements_king_mountain">King of the Mountain</string>
+    <string name="profile_achievements_night_ride">Night Ride</string>
+    <string name="profile_achievements_explorer">Explorer</string>
+
+    <!-- Profile guest -->
+    <string name="profile_guest_title">Sign in to 2circle</string>
+    <string name="profile_guest_body">Sync your routes, save ride history, and join the cycling community.</string>
+
+    <!-- Navigation overlay -->
+    <string name="navigation_stop">Stop navigation</string>
+    <string name="navigation_eta">ETA</string>
+    <string name="navigation_remaining">Remaining</string>
+    <string name="navigation_speed">Speed</string>
+    <string name="navigation_off_route">Off route — recalculating</string>
+    <string name="navigation_arrived">You have arrived</string>
+</resources>

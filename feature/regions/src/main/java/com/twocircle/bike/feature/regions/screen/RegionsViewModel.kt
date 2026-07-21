@@ -43,6 +43,11 @@ class RegionsViewModel @Inject constructor(
     private val _state = MutableStateFlow<RegionsUiState>(RegionsUiState.Loading)
     val state: StateFlow<RegionsUiState> = _state.asStateFlow()
 
+    /** Active region ID selected by the user. */
+    val activeRegionId: StateFlow<String?> = regions.activeRegionId
+
+    fun setActiveRegion(id: String) = regions.setActiveRegion(id)
+
     private var cachedCatalog: List<RegionEntry> = emptyList()
 
     init {
@@ -53,7 +58,7 @@ class RegionsViewModel @Inject constructor(
     /** Re-fetch the catalog from the backend. */
     fun refresh() {
         viewModelScope.launch {
-            when (val r = catalog.fetch(RegionCatalog.DEFAULT_MANIFEST_URL)) {
+            when (val r = catalog.fetch()) {
                 is Outcome.Success -> {
                     cachedCatalog = r.value.regions
                     // Force re-emission: combine() doesn't observe cachedCatalog (a

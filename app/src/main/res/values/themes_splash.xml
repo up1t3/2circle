@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Splash theme used only at launch via the AndroidX Core SplashScreen API.
+  After installSplashScreen() returns, the activity switches to Theme.TwoCircle.
+  Background color matches the brand (dark teal-black) so the transition from the
+  system launcher icon (which has the same background) is seamless.
+-->
+<resources>
+    <style name="Theme.TwoCircle.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.TwoCircle</item>
+    </style>
+</resources>

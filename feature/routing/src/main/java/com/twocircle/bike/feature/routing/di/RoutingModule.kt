@@ -54,31 +54,24 @@ object RoutingModule {
 }
 
 /**
- * Provides [RoutingEngine] as a [SmartRoutingEngine] that prefers offline (BRouter jar
- * + rd5 segments) and falls back to the cloud (BRouter-Web) only when no offline region
- * is available — this is the Offline-First product contract.
- */
-/**
- * Provides [RoutingEngine] — cloud-only (BRouter-Web).
+ * Binds [RoutingEngine] to [SmartRoutingEngine] — the Offline-First engine that
+ * prefers offline BRouter (jar + rd5 segments) and falls back to cloud only when
+ * no offline region is available.
  *
- * OfflineRoutingEngine + SmartRoutingEngine are fully implemented and tested on desktop,
- * but KSP2 + Hilt 2.56.2 cannot resolve OfflineRoutingEngine in @Provides when its
- * constructor references BRouterFacade from a cross-module dependency with an embedded
- * jar. Tried: Hilt 2.58 (regressions on ASM transform), 2.59 (requires AGP 9.0),
- * separate module isolation, api() vs implementation() — all reproduce.
- *
- * ACTIVATION when KSP/Hilt is patched: replace body with
- *   SmartRoutingEngine(offline = offline, cloud = cloud)
- * and add `offline: OfflineRoutingEngine` parameter.
+ * **Why @Binds instead of @Provides:** KSP2 + Hilt 2.56.2 cannot resolve
+ * `OfflineRoutingEngine` inside a `@Provides` method body when its constructor
+ * references `BRouterFacade` from a cross-module dependency with an embedded jar.
+ * `@Binds` has no method body — Hilt discovers `SmartRoutingEngine`'s own
+ * `@Inject constructor`, which transitively discovers `OfflineRoutingEngine`'s
+ * `@Inject constructor`, which transitively discovers `BRouterFacade`'s
+ * `@Inject constructor`. All three are already annotated `@Singleton @Inject`,
+ * so no `@Provides` body in the routing module needs to name the jar-dependent
+ * type. This sidesteps the KSP2 symbol-resolution glitch entirely.
  */
 @Module
 @InstallIn(SingletonComponent::class)
-object RoutingEngineModule {
-    @Provides
+abstract class RoutingEngineModule {
+    @Binds
     @Singleton
-    fun provideRoutingEngine(cloud: CloudRoutingEngine): RoutingEngine = cloud
+    abstract fun bindRoutingEngine(impl: com.twocircle.bike.feature.routing.engine.SmartRoutingEngine): RoutingEngine
 }
-
-/** Qualifier for offline-engine injection (used once it lands). */
-@Qualifier @Retention(AnnotationRetention.BINARY)
-annotation class OfflineEngine

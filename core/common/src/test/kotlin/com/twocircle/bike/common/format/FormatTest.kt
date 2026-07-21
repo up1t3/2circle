@@ -66,4 +66,17 @@ class FormatTest {
         assertThat(Format.fileSize(12L * 1024 * 1024)).isEqualTo("12.0 MB")
         assertThat(Format.fileSize((1.4 * 1024 * 1024 * 1024).toLong())).isEqualTo("1.4 GB")
     }
+
+    @Test
+    fun `localised Russian suffixes render correctly`() {
+        // Pass Russian short-form suffixes — same as UnitStrings.Default for ru locale.
+        assertThat(Format.distance(12_345.0, meter = "м", kilometer = "км")).isEqualTo("12.3 км")
+        assertThat(Format.speed(5.0, kmh = "км/ч")).isEqualTo("18.0 км/ч")
+        assertThat(Format.duration(Duration.ofMinutes(83), second = "с", minute = "мин", hour = "ч"))
+            .isEqualTo("1ч 23мин")
+        assertThat(Format.elevation(348.6, meter = "м")).isEqualTo("+349 м")
+        assertThat(Format.gradient(7.4, percentSign = "%")).isEqualTo("+7.4 %")
+        assertThat(Format.fileSize(12L * 1024 * 1024, gb = "ГБ", mb = "МБ", kb = "КБ", byte = "Б"))
+            .isEqualTo("12.0 МБ")
+    }
 }

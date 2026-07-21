@@ -1,5 +1,6 @@
 package com.twocircle.bike.feature.regions.download
 
+import com.twocircle.bike.common.di.ManifestUrl
 import com.twocircle.bike.common.outcome.Failure
 import com.twocircle.bike.common.outcome.Outcome
 import com.twocircle.bike.feature.regions.manifest.RegionManifest
@@ -16,8 +17,9 @@ import javax.inject.Singleton
 /**
  * Fetches the region catalog (manifest.json) from the backend.
  *
- * One GET; no Retrofit ceremony. The manifest URL is a build-time constant for v1 —
- * when the pipeline ships we'll point it at the self-hosted static host.
+ * One GET; no Retrofit ceremony. The manifest URL is injected via Hilt (`@Named("manifest_url")`)
+ * so it can differ per build type (debug → emulator alias 10.0.2.2, release → LAN IP)
+ * without the feature module depending on :app's BuildConfig.
  *
  * Failures map to typed [Failure.Network]: offline → [Failure.Network.Offline],
  * non-2xx → [Failure.Network.Server]. The UI surfaces these so the rider knows whether
@@ -26,6 +28,7 @@ import javax.inject.Singleton
 @Singleton
 class RegionCatalog @Inject constructor(
     private val client: OkHttpClient,
+    @ManifestUrl private val manifestUrl: String,
 ) {
 
     private val json = Json {
@@ -34,7 +37,7 @@ class RegionCatalog @Inject constructor(
         isLenient = true
     }
 
-    suspend fun fetch(manifestUrl: String): Outcome<RegionManifest> = withContext(Dispatchers.IO) {
+    suspend fun fetch(): Outcome<RegionManifest> = withContext(Dispatchers.IO) {
         try {
             val req = Request.Builder().url(manifestUrl).build()
             client.newCall(req).execute().use { response ->
@@ -54,21 +57,5 @@ class RegionCatalog @Inject constructor(
             Timber.e(e, "Catalog fetch failed")
             Outcome.Failure(Failure.Unknown(e))
         }
-    }
-
-    companion object {
-        /**
-         * Default manifest URL.
-         *
-         * LOCAL DEV (phone): points at the backend pipeline's HTTP server running on
-         * the dev machine. Phone and dev machine must be on the same LAN.
-         *
-         * LOCAL DEV (emulator): override to http://10.0.2.2:8765/manifest.json — that's
-         * the emulator's alias for the host loopback.
-         *
-         * PRODUCTION: override via BuildConfig when self-hosting, e.g.
-         * `https://2circle.example.org/regions/manifest.json`.
-         */
-        const val DEFAULT_MANIFEST_URL = "http://192.168.1.48:8765/manifest.json"
     }
 }

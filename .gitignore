@@ -41,3 +41,13 @@ backend/pbf/
 
 # BRouter toolchain download (jar + rd5 segments — large, fetched on demand)
 backend/brouter/
+
+# GitNexus code intelligence cache
+.gitnexus/
+.agents/
+.claude/
+AGENTS.md
+CLAUDE.md
+__pycache__/
+*.pyc
+backend/scripts/__pycache__/

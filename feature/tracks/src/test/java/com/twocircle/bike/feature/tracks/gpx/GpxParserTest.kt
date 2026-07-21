@@ -5,6 +5,8 @@ import org.junit.Test
 
 class GpxParserTest {
 
+    private val parser = GpxParser()
+
     @Test
     fun `parses minimal GPX with one trkpt`() {
         val xml = """
@@ -15,7 +17,7 @@ class GpxParserTest {
               </trkseg></trk>
             </gpx>
         """.trimIndent()
-        val doc = GpxParser.parse(xml)
+        val doc = parser.parse(xml)
         assertThat(doc.points).hasSize(1)
         assertThat(doc.points[0].lat).isEqualTo(50.0)
         assertThat(doc.points[0].lon).isEqualTo(30.0)
@@ -32,7 +34,7 @@ class GpxParserTest {
               </trkseg></trk>
             </gpx>
         """.trimIndent()
-        val doc = GpxParser.parse(xml)
+        val doc = parser.parse(xml)
         assertThat(doc.points[0].ele).isNull()
         assertThat(doc.points[0].timeIso).isNull()
     }
@@ -47,7 +49,7 @@ class GpxParserTest {
               </trk>
             </gpx>
         """.trimIndent()
-        val doc = GpxParser.parse(xml)
+        val doc = parser.parse(xml)
         assertThat(doc.points).hasSize(2)
     }
 
@@ -58,7 +60,7 @@ class GpxParserTest {
               <trk><name>Big loop</name><trkseg><trkpt lat="1.0" lon="1.0"/></trkseg></trk>
             </gpx>
         """.trimIndent()
-        assertThat(GpxParser.parse(xml).name).isEqualTo("Big loop")
+        assertThat(parser.parse(xml).name).isEqualTo("Big loop")
     }
 
     @Test
@@ -68,17 +70,17 @@ class GpxParserTest {
               <trk><trkseg><trkpt lat="1.0" lon="1.0"/></trkseg></trk>
             </gpx>
         """.trimIndent()
-        assertThat(GpxParser.parse(xml).name).isNull()
+        assertThat(parser.parse(xml).name).isNull()
     }
 
     @Test(expected = GpxParseException::class)
     fun `malformed XML throws`() {
-        GpxParser.parse("<gpx><trk><not closed>")
+        parser.parse("<gpx><trk><not closed>")
     }
 
     @Test(expected = GpxParseException::class)
     fun `no trkpt throws`() {
-        GpxParser.parse(
+        parser.parse(
             """
             <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
               <trk><trkseg></trkseg></trk>
@@ -96,7 +98,7 @@ class GpxParserTest {
               <trk><trkseg><trkpt lat="50.0" lon="30.0"/></trkseg></trk>
             </gpx>
         """.trimIndent()
-        val doc = GpxParser.parse(xml)
+        val doc = parser.parse(xml)
         assertThat(doc.points).hasSize(1)
         assertThat(doc.points[0].lat).isEqualTo(50.0)
     }
@@ -113,7 +115,7 @@ class GpxParserTest {
               </trkseg></trk>
             </gpx>
         """.trimIndent()
-        val doc = GpxParser.parse(xml)
+        val doc = parser.parse(xml)
         assertThat(doc.points).hasSize(2)
     }
 
@@ -125,6 +127,6 @@ class GpxParserTest {
             <!DOCTYPE gpx [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
             <gpx version="1.1"><trk><trkseg><trkpt lat="1.0" lon="1.0"/></trkseg></trk></gpx>
         """.trimIndent()
-        GpxParser.parse(xml)
+        parser.parse(xml)
     }
 }

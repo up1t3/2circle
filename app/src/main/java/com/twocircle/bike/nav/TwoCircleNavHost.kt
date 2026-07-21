@@ -1,9 +1,10 @@
 package com.twocircle.bike.nav
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material.icons.outlined.Public
 import androidx.compose.material.icons.outlined.Timeline
@@ -11,36 +12,58 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.twocircle.bike.R
-import com.twocircle.bike.ui.screens.PlaceholderScreen
+import com.twocircle.bike.feature.auth.ui.LoginScreen
+import com.twocircle.bike.feature.auth.ui.RegisterScreen
+import com.twocircle.bike.feature.social.ui.feed.FeedScreen
+import com.twocircle.bike.feature.social.ui.profile.ProfileScreen
+import kotlinx.coroutines.launch
 
 /**
  * Top-level navigation graph.
  *
- * Bottom nav: Карта / Маршруты / Треки / Регионы.
- * Each destination is a feature-module surface. Feature screens are injected as their
- * modules land in Steps 3–8; until then, [PlaceholderScreen] keeps the shell runnable
- * so the navigation contract is exercised end-to-end.
+ * Bottom nav (5 tabs): Карта / Маршруты / Треки / Лента / Профиль.
  */
 @Composable
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 fun TwoCircleNavHost() {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val current = backStack?.destination
 
+    val draftViewModel: com.twocircle.bike.feature.routing.screen.RouteBuilderViewModel =
+        androidx.hilt.navigation.compose.hiltViewModel(
+            viewModelStoreOwner = androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner.current!!
+                as androidx.lifecycle.ViewModelStoreOwner,
+        )
+    val focusViewModel: com.twocircle.bike.feature.map.screen.FocusViewModel =
+        androidx.hilt.navigation.compose.hiltViewModel(
+            viewModelStoreOwner = androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner.current!!
+                as androidx.lifecycle.ViewModelStoreOwner,
+        )
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             NavigationBar {
                 TopLevel.entries.forEach { dest ->
@@ -65,28 +88,76 @@ fun TwoCircleNavHost() {
             navController = nav,
             startDestination = TopLevel.MAP.route,
             modifier = Modifier.padding(padding),
+            enterTransition = {
+                androidx.compose.animation.slideInHorizontally(
+                    initialOffsetX = { it / 3 },
+                    animationSpec = androidx.compose.animation.core.tween(250, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                ) + androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(250))
+            },
+            exitTransition = {
+                androidx.compose.animation.slideOutHorizontally(
+                    targetOffsetX = { -it / 3 },
+                    animationSpec = androidx.compose.animation.core.tween(200, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                ) + androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(200))
+            },
+            popEnterTransition = {
+                androidx.compose.animation.slideInHorizontally(
+                    initialOffsetX = { -it / 3 },
+                    animationSpec = androidx.compose.animation.core.tween(250, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                ) + androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(250))
+            },
+            popExitTransition = {
+                androidx.compose.animation.slideOutHorizontally(
+                    targetOffsetX = { it / 3 },
+                    animationSpec = androidx.compose.animation.core.tween(200, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                ) + androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(200))
+            },
         ) {
-            composable(TopLevel.MAP.route) {
+            composable(
+                TopLevel.MAP.route,
+                enterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(150)) },
+                exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)) },
+            ) {
                 com.twocircle.bike.feature.map.screen.MapScreen(
                     onOpenSearch = { nav.navigate("search") },
                     onOpenRide = { nav.navigate("ride") },
+                    onOpenSettings = { nav.navigate("settings") },
+                    onLongPressAt = { lat, lon ->
+                        draftViewModel.addWaypointManual(
+                            com.twocircle.bike.domain.model.Coord(lat, lon),
+                        )
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Точка добавлена в маршрут")
+                        }
+                    },
+                    onAddPoiToRoute = { poi ->
+                        draftViewModel.addWaypointSearch(
+                            com.twocircle.bike.domain.model.Coord(poi.lat, poi.lon),
+                            poi.name,
+                        )
+                        scope.launch {
+                            snackbarHostState.showSnackbar(poi.name)
+                        }
+                    },
                 )
             }
             composable("search") {
                 com.twocircle.bike.feature.search.screen.SearchScreen(
                     onResultSelected = { result ->
-                        // Show the result on the map and return.
-                        nav.popBackStack()
+                        nav.popBackStack(TopLevel.MAP.route, inclusive = false)
+                        focusViewModel.focusController.focusOn(
+                            lat = result.hit.lat,
+                            lon = result.hit.lon,
+                            name = result.hit.name,
+                        )
                     },
                     onAddToRoute = { result ->
-                        // Navigate to the route builder with the place pre-filled as a waypoint.
-                        // Encoded as query args so the route builder reads them once and consumes.
-                        val lat = result.hit.lat
-                        val lon = result.hit.lon
-                        val name = java.net.URLEncoder.encode(result.hit.name, "UTF-8")
-                        nav.navigate("routes?addLat=$lat&addLon=$lon&addName=$name") {
-                            popUpTo(TopLevel.MAP.route)
-                            launchSingleTop = true
+                        draftViewModel.addWaypointSearch(
+                            com.twocircle.bike.domain.model.Coord(result.hit.lat, result.hit.lon),
+                            result.hit.name,
+                        )
+                        scope.launch {
+                            snackbarHostState.showSnackbar(result.hit.name)
                         }
                     },
                 )
@@ -95,38 +166,24 @@ fun TwoCircleNavHost() {
                 com.twocircle.bike.feature.tracking.screen.TrackingScreen()
             }
             composable(
-                route = "${TopLevel.ROUTES.route}?addLat={addLat}&addLon={addLon}&addName={addName}",
-                arguments = listOf(
-                    androidx.navigation.navArgument("addLat") {
-                        type = androidx.navigation.NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    },
-                    androidx.navigation.navArgument("addLon") {
-                        type = androidx.navigation.NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    },
-                    androidx.navigation.navArgument("addName") {
-                        type = androidx.navigation.NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    },
-                ),
-            ) { entry ->
-                val addLat = entry.arguments?.getString("addLat")?.toDoubleOrNull()
-                val addLon = entry.arguments?.getString("addLon")?.toDoubleOrNull()
-                val addName = entry.arguments?.getString("addName")
+                TopLevel.ROUTES.route,
+                enterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(150)) },
+                exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)) },
+            ) {
                 com.twocircle.bike.feature.routing.screen.RouteBuilderScreen(
-                    pendingWaypoint = if (addLat != null && addLon != null) {
-                        com.twocircle.bike.domain.model.Coord(addLat, addLon) to addName
-                    } else null,
+                    onOpenSavedRoutes = { nav.navigate("saved-routes") },
                 )
             }
-            composable(TopLevel.ROUTES.route) {
-                com.twocircle.bike.feature.routing.screen.RouteBuilderScreen()
+            composable("saved-routes") {
+                com.twocircle.bike.feature.routing.screen.SavedRoutesScreen(
+                    onPlanSelected = { nav.popBackStack() },
+                )
             }
-            composable(TopLevel.TRACKS.route) {
+            composable(
+                TopLevel.TRACKS.route,
+                enterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(150)) },
+                exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)) },
+            ) {
                 com.twocircle.bike.feature.tracks.screen.TracksScreen(
                     onTrackSelected = { id -> nav.navigate("tracks/$id") },
                 )
@@ -134,7 +191,7 @@ fun TwoCircleNavHost() {
             composable(
                 route = "tracks/{trackId}",
                 arguments = listOf(
-                    androidx.navigation.navArgument("trackId") { type = androidx.navigation.NavType.StringType },
+                    navArgument("trackId") { type = NavType.StringType },
                 ),
             ) { entry ->
                 val trackId = entry.arguments?.getString("trackId").orEmpty()
@@ -143,14 +200,41 @@ fun TwoCircleNavHost() {
                     onBack = { nav.popBackStack() },
                 )
             }
-            composable(TopLevel.REGIONS.route) {
+            composable(
+                TopLevel.FEED.route,
+                enterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(150)) },
+                exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)) },
+            ) {
+                FeedScreen()
+            }
+            composable(
+                TopLevel.PROFILE.route,
+                enterTransition = { androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(150)) },
+                exitTransition = { androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)) },
+            ) {
+                ProfileScreen(
+                    onNavigateToSettings = { nav.navigate("settings") },
+                    onNavigateToLogin = { nav.navigate("login") },
+                )
+            }
+            composable("login") {
+                LoginScreen(
+                    onSuccess = { nav.popBackStack() },
+                    onRegister = { nav.navigate("register") },
+                )
+            }
+            composable("register") {
+                RegisterScreen(
+                    onSuccess = { nav.popBackStack(TopLevel.PROFILE.route, false) },
+                    onBack = { nav.popBackStack() },
+                )
+            }
+            composable("regions") {
                 com.twocircle.bike.feature.regions.screen.RegionsScreen()
             }
-            TopLevel.entries
-                .filter { it != TopLevel.MAP && it != TopLevel.ROUTES && it != TopLevel.TRACKS && it != TopLevel.REGIONS }
-                .forEach { dest ->
-                    composable(dest.route) { PlaceholderScreen(dest.route) }
-                }
+            composable("settings") {
+                com.twocircle.bike.ui.screens.SettingsScreen()
+            }
         }
     }
 }
@@ -163,5 +247,6 @@ enum class TopLevel(
     MAP("map", R.string.nav_map, Icons.Outlined.Map),
     ROUTES("routes", R.string.nav_routes, Icons.Outlined.PlayCircleOutline),
     TRACKS("tracks", R.string.nav_tracks, Icons.Outlined.Timeline),
-    REGIONS("regions", R.string.nav_regions, Icons.Outlined.Public),
+    FEED("feed", com.twocircle.bike.designsystem.R.string.nav_feed, Icons.Outlined.Group),
+    PROFILE("profile", com.twocircle.bike.designsystem.R.string.nav_profile, Icons.Outlined.Person),
 }

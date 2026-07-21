@@ -75,7 +75,9 @@ fun PermissionRationaleDialog(
             TextButton(onClick = onConfirm) { Text(confirmLabel) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Не сейчас") }
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.perm_dismiss_not_now))
+            }
         },
     )
 }

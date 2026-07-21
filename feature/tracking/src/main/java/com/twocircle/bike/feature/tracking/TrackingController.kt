@@ -1,8 +1,10 @@
 package com.twocircle.bike.feature.tracking
 
+import android.content.Context
 import com.twocircle.bike.data.db.entity.TrackEntity
 import com.twocircle.bike.data.db.entity.TrackStatus
 import com.twocircle.bike.data.repository.TracksRepository
+import com.twocircle.bike.designsystem.R as DesignSystemR
 import com.twocircle.bike.domain.model.Coord
 import com.twocircle.bike.feature.tracking.model.PointSample
 import com.twocircle.bike.feature.tracking.model.SamplerState
@@ -13,11 +15,15 @@ import com.twocircle.bike.feature.tracking.model.withAcceptedSample
 import com.twocircle.bike.feature.tracking.persistence.PointPipeline
 import com.twocircle.bike.feature.tracking.sampler.PollingPolicy
 import com.twocircle.bike.feature.tracking.sampler.SampleFilter
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
+import java.text.SimpleDateFormat
 import java.util.ArrayDeque
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,6 +52,7 @@ class TrackingController @Inject constructor(
     private val tracks: TracksRepository,
     private val pipeline: PointPipeline,
     private val overlay: TrackOverlayController,
+    @ApplicationContext private val appContext: Context,
 ) {
 
     private val _state = MutableStateFlow(initialTrackingState())
@@ -63,7 +70,10 @@ class TrackingController @Inject constructor(
         val trackId = UUID.randomUUID().toString()
         val track = TrackEntity(
             id = trackId,
-            name = "Ride ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).format(java.util.Date(nowMs))}",
+            name = appContext.getString(
+                DesignSystemR.string.track_default_name_fmt,
+                SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date(nowMs)),
+            ),
             startedAtMs = nowMs,
             status = TrackStatus.Recording,
         )

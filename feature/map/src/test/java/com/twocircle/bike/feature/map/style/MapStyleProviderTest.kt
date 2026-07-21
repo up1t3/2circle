@@ -3,6 +3,7 @@ package com.twocircle.bike.feature.map.style
 import com.google.common.truth.Truth.assertThat
 import org.json.JSONObject
 import org.junit.Test
+import java.util.Locale
 
 /**
  * Style JSON correctness — these tests guard the JSON contract MapLibre parses.
@@ -124,6 +125,64 @@ class MapStyleProviderTest {
         val label = layerById("place-label")
         val textField = label.getJSONObject("layout").getString("text-field")
         assertThat(textField).contains("{name}")
+    }
+
+    @Test
+    fun `glyphs url points to bundled assets for offline rendering`() {
+        // MapLibre Native Android requires a `glyphs` URL to render ANY text in a
+        // SymbolLayer. We bundle the PBF ranges in :feature:map's assets and reference
+        // them via asset:// so labels work without network — a hard requirement for an
+        // offline-first touring app. If this URL changes (e.g. back to an online
+        // source), the test fails loud so nobody accidentally reintroduces the
+        // network dependency for labels.
+        val glyphsUrl = style().getString("glyphs")
+        assertThat(glyphsUrl).startsWith("asset://")
+        assertThat(glyphsUrl).contains("{fontstack}")
+        assertThat(glyphsUrl).contains("{range}")
+    }
+
+    @Test
+    fun `place label with no locale uses bare name token`() {
+        // Default (no locale): plain "{name}" string token — legacy behaviour.
+        val label = JSONObject(MapStyleProvider.buildStyleJson(samplePath, locale = null))
+            .getJSONArray("layers").let { layers ->
+                (0 until layers.length()).map { layers.getJSONObject(it) }
+                    .first { it.getString("id") == "place-label" }
+            }
+        val textField = label.getJSONObject("layout").getString("text-field")
+        assertThat(textField).isEqualTo("{name}")
+    }
+
+    @Test
+    fun `place label with Russian locale prefers name_ru then name_en then name`() {
+        val style = JSONObject(MapStyleProvider.buildStyleJson(samplePath, locale = Locale("ru")))
+        val label = style.getJSONArray("layers").let { layers ->
+            (0 until layers.length()).map { layers.getJSONObject(it) }
+                .first { it.getString("id") == "place-label" }
+        }
+        // text-field becomes a coalesce array expression, not a bare string.
+        val textField = label.getJSONObject("layout").getJSONArray("text-field")
+        val flat = flattenToString(textField)
+        assertThat(flat).contains("name:ru")
+        assertThat(flat).contains("name:en")
+        // flattenToString strips quotes, so the bare `name` token shows as just "name"
+        // (not "name:ru" or "name:en"). Verify the trailing get-name fallback exists.
+        assertThat(flat).endsWith("name")
+        // coalesce operator must lead.
+        assertThat(textField.getString(0)).isEqualTo("coalesce")
+    }
+
+    @Test
+    fun `place label with English locale skips duplicate name_en entry`() {
+        val style = JSONObject(MapStyleProvider.buildStyleJson(samplePath, locale = Locale.ENGLISH))
+        val label = style.getJSONArray("layers").let { layers ->
+            (0 until layers.length()).map { layers.getJSONObject(it) }
+                .first { it.getString("id") == "place-label" }
+        }
+        val textField = label.getJSONObject("layout").getJSONArray("text-field")
+        val flat = flattenToString(textField)
+        // name:en appears exactly once (not duplicated as both primary and fallback).
+        assertThat(flat.replace("name:en", "X").count { it == 'X' }).isEqualTo(1)
     }
 
     private fun layerById(id: String): JSONObject {

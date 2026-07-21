@@ -26,11 +26,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.twocircle.bike.common.format.Format
+import com.twocircle.bike.designsystem.R
+import com.twocircle.bike.designsystem.l10n.LocalUnitStrings
+import com.twocircle.bike.designsystem.l10n.messageRes
 import com.twocircle.bike.feature.search.model.ScoredResult
 
 /**
@@ -57,12 +61,15 @@ fun SearchScreen(
             value = query,
             onValueChange = viewModel::onQueryChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Search places, springs, passes…") },
+            placeholder = { Text(stringResource(R.string.search_placeholder)) },
             leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
             trailingIcon = {
                 if (query.isNotEmpty()) {
                     IconButton(onClick = { viewModel.onQueryChange("") }) {
-                        Icon(Icons.Outlined.Clear, contentDescription = "Clear")
+                        Icon(
+                            Icons.Outlined.Clear,
+                            contentDescription = stringResource(R.string.cd_search_clear),
+                        )
                     }
                 }
             },
@@ -70,14 +77,12 @@ fun SearchScreen(
         )
 
         when (val s = state) {
-            SearchUiState.Idle -> Hint("Type a place name to search offline.")
+            SearchUiState.Idle -> Hint(stringResource(R.string.search_hint_idle))
             SearchUiState.Searching -> Loading()
             is SearchUiState.Results -> ResultList(s.items, onResultSelected, onAddToRoute)
-            SearchUiState.Empty -> Hint("No matches found.")
-            SearchUiState.NoRegion -> Hint(
-                "Download a region in the Regions tab to enable offline search.",
-            )
-            is SearchUiState.Error -> Hint("Search error: ${s.failure.javaClass.simpleName}")
+            SearchUiState.Empty -> Hint(stringResource(R.string.search_hint_empty))
+            SearchUiState.NoRegion -> Hint(stringResource(R.string.search_hint_no_region))
+            is SearchUiState.Error -> Hint(stringResource(s.failure.messageRes()))
         }
     }
 }
@@ -105,6 +110,7 @@ private fun ResultRow(
     onClick: () -> Unit,
     onAddToRoute: () -> Unit,
 ) {
+    val units = LocalUnitStrings.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,20 +128,24 @@ private fun ResultRow(
                     modifier = Modifier.padding(top = 2.dp),
                 ) {
                     Text(
-                        text = result.hit.kind.osmValue,
+                        text = stringResource(result.hit.kind.displayNameRes),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
                     result.distanceKm?.let { km ->
                         Text(
-                            text = Format.distance(km * 1000.0),
+                            text = Format.distance(
+                                km * 1000.0,
+                                meter = units.meter,
+                                kilometer = units.kilometer,
+                            ),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         )
                     }
                     if (result.hit.population > 0) {
                         Text(
-                            text = "pop ${result.hit.population}",
+                            text = stringResource(R.string.search_pop_fmt, result.hit.population),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         )
@@ -143,7 +153,7 @@ private fun ResultRow(
                 }
             }
             TextButton(onClick = onAddToRoute) {
-                Text("To route")
+                Text(stringResource(R.string.search_action_to_route))
             }
         }
     }

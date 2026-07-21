@@ -6,6 +6,7 @@ import com.twocircle.bike.common.outcome.Failure
 import com.twocircle.bike.common.outcome.Outcome
 import com.twocircle.bike.data.repository.TracksRepository
 import com.twocircle.bike.feature.tracks.gpx.GpxExporter
+import com.twocircle.bike.feature.tracks.gpx.GpxParser
 import com.twocircle.bike.feature.tracks.model.TrackDetail
 import com.twocircle.bike.feature.tracks.model.TrackListItem
 import com.twocircle.bike.feature.tracks.model.toGpxDocument
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class TracksViewModel @Inject constructor(
     private val tracks: TracksRepository,
     private val exporter: GpxExporter,
+    private val gpxParser: GpxParser,
 ) : ViewModel() {
 
     /** Reactive list of all rides, mapped to list-item rows. */
@@ -91,6 +93,41 @@ class TracksViewModel @Inject constructor(
             when (val r = tracks.delete(trackId)) {
                 is Outcome.Failure -> Timber.w("Delete failed: ${r.failure}")
                 is Outcome.Success -> Timber.d("Deleted %s", trackId)
+            }
+        }
+    }
+
+    /**
+     * Import a GPX file from a content URI (picked via SAF).
+     *
+     * Reads the file, parses it through [GpxParser], and creates a new TrackEntity
+     * with all points. The track appears in the list immediately after import.
+     */
+    fun importGpx(uri: android.net.Uri, context: android.content.Context) {
+        viewModelScope.launch {
+            try {
+                val xml = context.contentResolver.openInputStream(uri)?.use { it.readBytes().toString(Charsets.UTF_8) }
+                    ?: run { Timber.w("GPX import: could not open stream for %s", uri); return@launch }
+                val doc = gpxParser.parse(xml)
+                val now = System.currentTimeMillis()
+                val trackId = java.util.UUID.randomUUID().toString()
+                val name = doc.name ?: "Imported ride ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.US).format(java.util.Date(now))}"
+                val points = doc.points.mapIndexed { i, pt ->
+                    com.twocircle.bike.data.db.entity.TrackPointEntity(
+                        trackId = trackId,
+                        seq = i.toLong(),
+                        lat = pt.lat,
+                        lon = pt.lon,
+                        ele = pt.ele,
+                        timestampMs = pt.timeIso?.let {
+                            runCatching { java.time.Instant.parse(it).toEpochMilli() }.getOrNull()
+                        } ?: now + i,
+                    )
+                }
+                tracks.importTrack(trackId, name, now, points)
+                Timber.i("GPX imported: %s (%d points)", trackId, points.size)
+            } catch (e: Exception) {
+                Timber.e(e, "GPX import failed for %s", uri)
             }
         }
     }

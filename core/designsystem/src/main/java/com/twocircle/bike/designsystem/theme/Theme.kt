@@ -14,6 +14,8 @@ private val DarkColors = darkColorScheme(
     onBackground = BikeDarkColors.OnBackground,
     surface = BikeDarkColors.Surface,
     onSurface = BikeDarkColors.OnSurface,
+    surfaceVariant = BikeDarkColors.SurfaceVariant,
+    onSurfaceVariant = BikeDarkColors.OnSurfaceMuted,
     error = BikeDarkColors.Error,
 )
 
@@ -25,9 +27,10 @@ private val LightColors = lightColorScheme(
     onBackground = BikeLightColors.OnBackground,
     surface = BikeLightColors.Surface,
     onSurface = BikeLightColors.OnSurface,
+    surfaceVariant = BikeLightColors.SurfaceVariant,
+    onSurfaceVariant = BikeLightColors.OnSurfaceMuted,
     error = BikeLightColors.Error,
 )
-
 /**
  * App theme. Dark is the default for outdoor readability and night-vision preservation
  * during multi-day tours; light mode flips in bright sunlight.

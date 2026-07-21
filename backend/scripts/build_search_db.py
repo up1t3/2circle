@@ -68,14 +68,39 @@ PLACE_KINDS = {
     "isolated_dwelling": "hamlet",
 }
 POI_KINDS = {
+    # Natural / tourism (the original curated set — useful in the backcountry).
     ("natural", "spring"): "spring",
     ("natural", "mountain_pass"): "mountain_pass",
     ("tourism", "camp_site"): "campsite",
     ("tourism", "viewpoint"): "viewpoint",
     ("tourism", "alpine_hut"): "campsite",
     ("tourism", "wilderness_hut"): "campsite",
+    # Bicycle-specific.
     ("amenity", "bicycle_repair_station"): "bicycle_service",
     ("shop", "bicycle"): "bicycle_service",
+    ("amenity", "bicycle_rental"): "bicycle_rental",
+    # Daily on-tour needs — pharmacies, food, fuel, lodging.
+    ("amenity", "pharmacy"): "pharmacy",
+    ("amenity", "fuel"): "fuel",
+    ("amenity", "cafe"): "cafe",
+    ("amenity", "restaurant"): "restaurant",
+    ("amenity", "fast_food"): "restaurant",
+    ("amenity", "hospital"): "hospital",
+    ("amenity", "clinic"): "hospital",
+    ("amenity", "doctors"): "hospital",
+    ("amenity", "atm"): "atm",
+    ("amenity", "bank"): "atm",
+    ("amenity", "drinking_water"): "water",
+    # Lodging.
+    ("tourism", "hotel"): "hotel",
+    ("tourism", "hostel"): "hotel",
+    ("tourism", "motel"): "hotel",
+    ("tourism", "guest_house"): "hotel",
+    # Food shopping (supermarkets & convenience — where riders resupply).
+    ("shop", "supermarket"): "shop",
+    ("shop", "convenience"): "shop",
+    ("shop", "bakery"): "shop",
+    ("shop", "kiosk"): "shop",
 }
 
 
@@ -158,13 +183,61 @@ class PlaceHandler(osmium.SimpleHandler):
             return
         if not self._in_bounds(n.location.lat, n.location.lon):
             return
+        self._emit(name, kind, n.location.lat, n.location.lon, tags)
+
+    def way(self, w) -> None:
+        """Capture polygon POIs (hotels, hospitals, shops as buildings/areas).
+
+        Many OSM POIs are mapped as closed ways rather than nodes — a shop polygon, a
+        hospital building, a tourism=hotel area. Without this handler we'd miss them.
+        We use the way's centroid (average of node coords) as the place coordinate,
+        which is close enough for search-and-fly-to use.
+
+        osmium with `locations=True` (set in main) loads node coordinates for ways,
+        so w.nodes carries lat/lon without a separate join pass.
+        """
+        tags = {t.k: t.v for t in w.tags}
+        name = tags.get("name")
+        if not name:
+            return
+        kind = kind_from_tags(tags)
+        if kind is None:
+            return
+        nodes = list(w.nodes)
+        if len(nodes) < 3:
+            # A 2-node way is a line (road/waterway) — not a POI polygon; skip.
+            return
+        # Centroid = mean of node coordinates. Not the true geometric centroid of the
+        # polygon, but for small features (a shop footprint) the difference is sub-meter.
+        try:
+            lats = [nd.location.lat for nd in nodes]
+            lons = [nd.location.lon for nd in nodes]
+        except AttributeError:
+            # Some ways may have unresolved node refs despite locations=True; skip them.
+            return
+        if not lats:
+            return
+        lat = sum(lats) / len(lats)
+        lon = sum(lons) / len(lons)
+        if not self._in_bounds(lat, lon):
+            return
+        self._emit(name, kind, lat, lon, tags)
+
+    def _emit(
+        self,
+        name: str,
+        kind: str,
+        lat: float,
+        lon: float,
+        tags: dict,
+    ) -> None:
         self.places.append(
             Place(
                 name=name,
                 name_ascii=transliterate(name),
                 kind=kind,
-                lat=n.location.lat,
-                lon=n.location.lon,
+                lat=lat,
+                lon=lon,
                 population=population_from_tags(tags),
             )
         )

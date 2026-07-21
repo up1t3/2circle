@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Spanish (es). Centralised UI strings in :core:designsystem. -->
+<resources>
+    <!-- Shared actions -->
+    <string name="action_retry">Reintentar</string>
+    <string name="action_refresh">Actualizar</string>
+    <string name="action_delete">Eliminar</string>
+    <string name="action_download">Descargar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_close">Cerrar</string>
+    <string name="action_done">Hecho</string>
+
+    <!-- Map screen -->
+    <string name="cd_map_search_fab">Buscar</string>
+    <string name="cd_map_start_ride_fab">Iniciar ruta</string>
+    <string name="cd_map_my_location_fab">Mi ubicación</string>
+    <string name="cd_map_poi_fab">Puntos de interés</string>
+    <string name="map_no_region_title">Aún no hay región sin conexión descargada</string>
+    <string name="map_no_region_body">
+        Abre la pestaña Regiones y descarga una región para planear rutas sin conexión.
+    </string>
+    <string name="map_error_title">No se pudo cargar el mapa</string>
+    <string name="map_error_region_not_downloaded">Región no descargada</string>
+    <string name="map_error_region_corrupted">Los archivos de la región están dañados</string>
+    <string name="map_error_storage_inaccessible">Almacenamiento no accesible</string>
+    <string name="map_error_generic">Error inesperado</string>
+
+    <!-- Search screen -->
+    <string name="search_placeholder">Buscar lugares, manantiales, puertos…</string>
+    <string name="cd_search_clear">Borrar</string>
+    <string name="search_hint_idle">Escribe el nombre de un lugar para buscar sin conexión.</string>
+    <string name="search_hint_empty">Sin resultados.</string>
+    <string name="search_hint_no_region">
+        Descarga una región en la pestaña Regiones para activar la búsqueda sin conexión.
+    </string>
+    <string name="search_error_generic">Error de búsqueda</string>
+    <string name="search_pop_fmt">pob. %1$d</string>
+    <string name="search_action_to_route">A la ruta</string>
+
+    <!-- Route builder screen -->
+    <string name="route_builder_title">Constructor de ruta</string>
+    <string name="route_empty_hint">
+        Añade puntos desde el mapa (pulsación larga) o la búsqueda para construir una ruta.
+    </string>
+    <string name="route_need_more_hint">Añade al menos un punto más para trazar la ruta</string>
+    <string name="waypoint_added">Punto añadido</string>
+    <string name="route_action_save">Guardar ruta</string>
+    <string name="saved_routes_title">Rutas guardadas</string>
+    <string name="saved_routes_empty">Aún no hay rutas guardadas. Planifica y guarda una ruta.</string>
+    <string name="route_waypoint_coord_fmt">%1$.4f, %2$.4f</string>
+    <string name="cd_route_remove_waypoint">Quitar punto</string>
+    <string name="route_preview_title">Ruta planificada</string>
+    <string name="route_planning_status">Trazando ruta…</string>
+    <string name="route_error_title">No se pudo trazar la ruta</string>
+    <string name="route_error_no_path">No hay ruta entre estos puntos</string>
+    <string name="route_error_region_not_downloaded">Región no descargada</string>
+    <string name="route_error_generic">Error de ruta</string>
+    <string name="route_action_planning">Trazando…</string>
+    <string name="route_action_plan">Trazar ruta</string>
+    <string name="route_replan">Retrazar</string>
+
+    <!-- Tracking screen + notifications -->
+    <string name="tracking_title_ride">Ruta</string>
+    <string name="tracking_action_start">Iniciar ruta</string>
+    <string name="tracking_action_stop">Detener</string>
+    <string name="track_default_name_fmt">Ruta %1$s</string>
+    <string name="notif_channel_ride_recording_name">Grabación de ruta</string>
+    <string name="notif_channel_ride_recording_desc">
+        Notificación persistente mientras se graba una ruta.
+    </string>
+    <string name="notif_recording_title">2circle — grabando</string>
+    <string name="notif_recording_content_fmt">%1$s  ·  %2$s  ·  ↑%3$s</string>
+
+    <!-- Tracks screen + detail -->
+    <string name="tracks_title">Recorridos</string>
+    <string name="tracks_empty_hint">Aún no hay rutas. Inicia una desde el mapa.</string>
+    <string name="tracks_import_gpx">Importar GPX</string>
+    <string name="tracks_error_generic">No se pudieron cargar los recorridos</string>
+    <string name="tracks_row_stats_fmt">%1$s  ·  %2$s  ·  %3$s</string>
+    <string name="track_detail_not_found">Recorrido no encontrado.</string>
+    <string name="track_detail_error_generic">No se pudo cargar el recorrido</string>
+    <string name="track_detail_share_chooser_title">Compartir GPX</string>
+    <string name="track_detail_action_export_gpx">Exportar GPX</string>
+    <string name="track_detail_action_delete">Eliminar recorrido</string>
+
+    <!-- Regions screen -->
+    <string name="regions_title">Regiones</string>
+    <string name="regions_empty_hint">No hay regiones disponibles. Pulsa Actualizar para cargar el catálogo.</string>
+    <string name="regions_error_generic">No se pudieron cargar las regiones</string>
+    <string name="regions_row_meta_fmt">%1$s  ·  v%2$d</string>
+    <string name="region_dl_downloading_fmt">Descargando… %1$d%%</string>
+    <string name="region_dl_verifying">Verificando…</string>
+    <string name="region_dl_extracting">Extrayendo…</string>
+    <string name="region_dl_installed">Instalado</string>
+    <string name="region_dl_failed_fmt">Fallido: %1$s</string>
+    <string name="region_dl_failed_unknown">desconocido</string>
+
+    <!-- POI bottom sheet -->
+    <string name="poi_sheet_title">Puntos de interés</string>
+    <string name="poi_sheet_subtitle">Toca categorías para mostrarlas en el mapa</string>
+    <string name="poi_empty_hint">No hay puntos en esta área para las categorías seleccionadas.</string>
+    <string name="poi_action_add_to_route">Añadir a la ruta</string>
+    <string name="poi_count_fmt">%1$d puntos</string>
+
+    <!-- POI detail card -->
+    <string name="poi_detail_coords">%1$.5f, %2$.5f</string>
+    <string name="poi_detail_category">Categoría</string>
+    <string name="poi_detail_close">Cerrar</string>
+
+    <!-- Waypoint action sheet -->
+    <string name="waypoint_sheet_title">Añadir punto</string>
+    <string name="waypoint_sheet_coords">%1$.5f, %2$.5f</string>
+    <string name="waypoint_sheet_add">Añadir a la ruta</string>
+    <string name="waypoint_sheet_whats_here">¿Qué hay aquí?</string>
+    <string name="waypoint_sheet_cancel">Cancelar</string>
+    <string name="waypoint_sheet_searching">Buscando cerca…</string>
+    <string name="waypoint_sheet_found_name">%1$s</string>
+
+    <!-- Stat captions -->
+    <string name="stat_distance">Distancia</string>
+    <string name="stat_time">Tiempo</string>
+    <string name="stat_ascent">Ascenso</string>
+    <string name="stat_descent">Descenso</string>
+    <string name="stat_caption_distance">distancia</string>
+    <string name="stat_caption_avg">media</string>
+    <string name="stat_caption_moving">movimiento</string>
+    <string name="stat_caption_ascent">ascenso</string>
+    <string name="stat_caption_descent">descenso</string>
+    <string name="stat_caption_max">máx.</string>
+    <string name="stat_caption_points">puntos</string>
+
+    <!-- Routing profiles -->
+    <string name="profile_touring">Turismo</string>
+    <string name="profile_road">Carretera</string>
+    <string name="profile_mtb">MTB</string>
+
+    <!-- Waypoint role / source -->
+    <string name="waypoint_role_start">Inicio</string>
+    <string name="waypoint_role_via">Intermedio</string>
+    <string name="waypoint_role_end">Fin</string>
+    <string name="waypoint_source_manual">Manual</string>
+    <string name="waypoint_source_search">Búsqueda</string>
+    <string name="waypoint_source_gps">GPS</string>
+    <string name="waypoint_source_gpx_import">Importar GPX</string>
+
+    <!-- Surface legend -->
+    <string name="surface_asphalt">Asfalto</string>
+    <string name="surface_compacted">Tierra compactada</string>
+    <string name="surface_dirt">Tierra</string>
+    <string name="surface_sand">Arena</string>
+    <string name="surface_grass">Hierba</string>
+    <string name="surface_rock">Roca</string>
+    <string name="surface_unknown">Desconocido</string>
+
+    <!-- Place kinds -->
+    <string name="place_kind_city">Ciudad</string>
+    <string name="place_kind_town">Pueblo</string>
+    <string name="place_kind_village">Aldea</string>
+    <string name="place_kind_hamlet">Alquería</string>
+    <string name="place_kind_spring">Manantial</string>
+    <string name="place_kind_mountain_pass">Puerto de montaña</string>
+    <string name="place_kind_campsite">Camping</string>
+    <string name="place_kind_viewpoint">Mirador</string>
+    <string name="place_kind_bicycle_service">Servicio de bici</string>
+    <string name="place_kind_pharmacy">Farmacia</string>
+    <string name="place_kind_fuel">Gasolinera</string>
+    <string name="place_kind_cafe">Café</string>
+    <string name="place_kind_restaurant">Restaurante</string>
+    <string name="place_kind_hospital">Hospital</string>
+    <string name="place_kind_atm">Cajero</string>
+    <string name="place_kind_water">Agua potable</string>
+    <string name="place_kind_bicycle_rental">Alquiler de bici</string>
+    <string name="place_kind_hotel">Hotel</string>
+    <string name="place_kind_shop">Tienda</string>
+    <string name="place_kind_other">Punto</string>
+
+    <!-- Region install states -->
+    <string name="region_install_state_installed">Instalado</string>
+    <string name="region_install_state_not_installed">No instalado</string>
+    <string name="region_install_state_failed">Fallido</string>
+    <string name="region_install_state_downloading">Descargando</string>
+    <string name="region_install_state_verifying">Verificando</string>
+    <string name="region_install_state_extracting">Extrayendo</string>
+
+    <!-- Format units -->
+    <string name="format_unit_meter">m</string>
+    <string name="format_unit_kilometer">km</string>
+    <string name="format_unit_kmh">km/h</string>
+    <string name="format_unit_second">s</string>
+    <string name="format_unit_minute">min</string>
+    <string name="format_unit_hour">h</string>
+    <string name="format_unit_percent">%</string>
+    <string name="format_unit_gb">GB</string>
+    <string name="format_unit_mb">MB</string>
+    <string name="format_unit_kb">KB</string>
+    <string name="format_unit_b">B</string>
+
+    <!-- Placeholder -->
+    <string name="placeholder_screen_title_fmt">2circle / %1$s</string>
+    <string name="placeholder_screen_body">Esta pantalla se incluye en una próxima versión.</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_section_language">Idioma</string>
+    <string name="settings_language_system">Predeterminado del sistema</string>
+    <string name="settings_section_about">Acerca de</string>
+    <string name="settings_about_version">Versión %1$s</string>
+    <string name="settings_about_attribution">Datos cartográficos © Colaboradores de OpenStreetMap (ODbL). Elevación: Copernicus DEM GLO-30.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step_of">Paso %1$d de %2$d</string>
+    <string name="onboarding_action_skip">Omitir</string>
+    <string name="onboarding_action_next">Siguiente</string>
+    <string name="onboarding_action_done">Empezar</string>
+
+    <string name="onboarding_title_1">Mapas sin conexión para ciclismo</string>
+    <string name="onboarding_body_1">Descarga una región una vez y pedalea sin señal. Las carreteras se colorean por superficie — asfalto, grava, arena — para que siempre sepas qué hay adelante.</string>
+
+    <string name="onboarding_title_2">Busca lugares por nombre</string>
+    <string name="onboarding_body_2">Busca pueblos, manantiales y puertos sin conexión. Mantén pulsado el mapa para añadir un punto; encadénalos en una ruta.</string>
+
+    <string name="onboarding_title_3">Graba y exporta</string>
+    <string name="onboarding_body_3">El registro resistente a fallos guarda cada punto GPS, aunque la app se cierre a mitad del recorrido. Exporta tus rutas como GPX para compartirlas.</string>
+    <!-- UI Redesign Sprint 1 -->
+    <string name="map_cd_profile">Perfil</string>
+    <string name="map_cd_search">Buscar</string>
+    <string name="map_cd_reset_bearing">Restablecer rumbo</string>
+    <string name="map_poi_chip_all">Todo</string>
+    <string name="map_cd_my_location">Mi ubicación</string>
+    <string name="map_action_navigate">Navegación</string>
+    <string name="map_action_add_waypoint">Agregar punto de ruta</string>
+    <string name="map_action_open_menu">Abrir menú de acciones</string>
+    <string name="map_action_close_menu">Cerrar menú</string>
+    <string name="route_section_surfaces">Tipos de superficie</string>
+    <string name="route_section_elevations">Perfil de elevación</string>
+    <string name="route_no_elevation_data">Sin datos de elevación</string>
+    <string name="route_cd_drag_handle">Arrastrar para reordenar</string>
+    <!-- UI Redesign Sprint 2 -->
+    <string name="settings_section_account">Cuenta</string>
+    <string name="settings_account_offline">Ciclista sin conexión</string>
+    <string name="settings_account_default_name">Ciclista 2circle</string>
+    <string name="settings_section_theme">Tema</string>
+    <string name="settings_theme_system">Predeterminado del sistema</string>
+    <string name="settings_theme_dark">Tema oscuro</string>
+    <string name="settings_theme_light">Tema claro</string>
+    <string name="settings_section_units">Unidades</string>
+    <string name="settings_units_metric">Métrico (km, m, km/h)</string>
+    <string name="settings_units_imperial">Imperial (mi, ft, mph)</string>
+    <string name="settings_section_maps">Mapas</string>
+    <string name="settings_maps_active_region">Región activa</string>
+    <string name="settings_maps_region_loaded">Región sin conexión cargada</string>
+    <string name="track_detail_delete_confirm_title">¿Eliminar ruta?</string>
+    <string name="track_detail_delete_confirm_body">Esta ruta se eliminará permanentemente.</string>
+    <string name="regions_active_badge">Activa</string>
+    <!-- UI Redesign Sprint 3 -->
+    <string name="nav_feed">Novedades</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="auth_login_title">Bienvenido de nuevo</string>
+    <string name="auth_email">Correo electrónico</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_login_button">Iniciar sesión</string>
+    <string name="auth_google_button">Continuar con Google</string>
+    <string name="auth_register_link">¿No tienes cuenta? Regístrate</string>
+    <string name="auth_register_title">Crear cuenta</string>
+    <string name="auth_display_name">Nombre</string>
+    <string name="auth_confirm_password">Confirmar contraseña</string>
+    <string name="auth_terms_checkbox">Acepto los términos de servicio</string>
+    <string name="auth_register_button">Crear cuenta</string>
+    <string name="auth_back_to_login">¿Ya tienes cuenta? Iniciar sesión</string>
+    <string name="profile_title">Perfil</string>
+    <string name="profile_total_km">Total km</string>
+    <string name="profile_rides_count">Rutas</string>
+    <string name="profile_total_ascent">Desnivel (m)</string>
+    <string name="profile_logout_button">Cerrar sesión</string>
+    <string name="feed_title">Feed de la comunidad</string>
+    <string name="splash_tagline">Ciclismo, sin conexión</string>
+
+    <!-- Errores de autenticación -->
+    <string name="auth_error_invalid_email">Introduce un email válido</string>
+    <string name="auth_error_weak_password">La contraseña debe tener al menos 8 caracteres</string>
+    <string name="auth_error_empty_name">Introduce tu nombre</string>
+    <string name="auth_error_password_mismatch">Las contraseñas no coinciden</string>
+    <string name="auth_error_terms">Acepta los términos de servicio</string>
+    <string name="auth_error_network">Error de red. Comprueba tu conexión.</string>
+    <string name="auth_error_generic">Algo salió mal. Inténtalo de nuevo.</string>
+
+    <!-- Logros -->
+    <string name="profile_achievements_title">Logros</string>
+    <string name="profile_achievements_first_100">Primeros 100 km</string>
+    <string name="profile_achievements_weekly_goal">Meta semanal</string>
+    <string name="profile_achievements_100_rides">100 rutas</string>
+    <string name="profile_achievements_king_mountain">Rey de la montaña</string>
+    <string name="profile_achievements_night_ride">Ruta nocturna</string>
+    <string name="profile_achievements_explorer">Explorador</string>
+
+    <!-- Perfil de invitado -->
+    <string name="profile_guest_title">Inicia sesión en 2circle</string>
+    <string name="profile_guest_body">Sincroniza tus rutas, guarda el historial de viajes y únete a la comunidad ciclista.</string>
+
+    <!-- Navegación -->
+    <string name="navigation_stop">Detener navegación</string>
+    <string name="navigation_eta">Llegada</string>
+    <string name="navigation_remaining">Restante</string>
+    <string name="navigation_speed">Velocidad</string>
+    <string name="navigation_off_route">Fuera de ruta — recalculando</string>
+    <string name="navigation_arrived">Has llegado</string>
+</resources>

@@ -16,7 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.twocircle.bike.designsystem.R
 import com.twocircle.bike.designsystem.theme.BikeColors
 
 /**
@@ -53,12 +55,12 @@ fun SurfaceLegend(modifier: Modifier = Modifier) {
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        SurfaceSwatch("Асфальт", BikeColors.SurfaceAsphalt)
-        SurfaceSwatch("Грунт укатанный", BikeColors.SurfaceCompacted)
-        SurfaceSwatch("Грунт", BikeColors.SurfaceDirt)
-        SurfaceSwatch("Песок", BikeColors.SurfaceSand)
-        SurfaceSwatch("Трава", BikeColors.SurfaceGrass)
-        SurfaceSwatch("Камни", BikeColors.SurfaceRock)
-        SurfaceSwatch("Неизвестно", BikeColors.SurfaceUnknown)
+        SurfaceSwatch(stringResource(R.string.surface_asphalt), BikeColors.SurfaceAsphalt)
+        SurfaceSwatch(stringResource(R.string.surface_compacted), BikeColors.SurfaceCompacted)
+        SurfaceSwatch(stringResource(R.string.surface_dirt), BikeColors.SurfaceDirt)
+        SurfaceSwatch(stringResource(R.string.surface_sand), BikeColors.SurfaceSand)
+        SurfaceSwatch(stringResource(R.string.surface_grass), BikeColors.SurfaceGrass)
+        SurfaceSwatch(stringResource(R.string.surface_rock), BikeColors.SurfaceRock)
+        SurfaceSwatch(stringResource(R.string.surface_unknown), BikeColors.SurfaceUnknown)
     }
 }

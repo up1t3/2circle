@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Color resources. Splash background matches the launcher icon's dark teal-black so the
+  cold-start splash → icon → app transition is visually continuous.
+-->
+<resources>
+    <color name="splash_background">#101418</color>
+</resources>

@@ -9,7 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.twocircle.bike.designsystem.R
 
 /**
  * Feature-screen placeholder.
@@ -26,11 +28,11 @@ fun PlaceholderScreen(route: String) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "2circle / $route",
+            text = stringResource(R.string.placeholder_screen_title_fmt, route),
             style = MaterialTheme.typography.titleLarge,
         )
         Text(
-            text = "Экран подключается в следующих шагах сборки.",
+            text = stringResource(R.string.placeholder_screen_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             modifier = Modifier.padding(top = 8.dp),

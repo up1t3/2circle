@@ -77,7 +77,7 @@ class GpxWriterTest {
             name = "Loop",
         )
         val xml = GpxWriter.write(original)
-        val parsed = GpxParser.parse(xml)
+        val parsed = GpxParser().parse(xml)
         assertThat(parsed.name).isEqualTo("Loop")
         assertThat(parsed.points).hasSize(2)
         assertThat(parsed.points[0].lat).isWithin(1e-6).of(50.1234567)

@@ -21,6 +21,11 @@ android {
 }
 
 dependencies {
+    // Failure catalog and domain enums live in :core:common / :core:domain —
+    // needed for FailureMessages.kt and DomainLabels.kt
+    api(project(":core:common"))
+    api(project(":core:domain"))
+
     // Compose BOM manages compose lib versions; we declare no versions here.
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)

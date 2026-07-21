@@ -4,14 +4,6 @@ package com.twocircle.bike.feature.map.style
  * Road surface colour scheme — the user-visible identity of 2circle.
  *
  * "asphalt green, gravel orange, sand red" — how riders recognise surface at a glance.
- *
- * IMPORTANT: these values MUST stay in sync with `BikeColors` in :core:designsystem,
- * which drives the legend chips. If you change a colour here, update the legend too.
- * They're duplicated (not shared) because the style JSON uses hex strings and the
- * Compose layer uses Color ints — bridging them would force one layer to depend on the
- * other's representation.
- *
- * Colours are HSL-style hex strings understood by MapLibre's style JSON parser.
  */
 object MapColors {
     const val ASPHALT = "#4CAF50"      // green
@@ -22,18 +14,30 @@ object MapColors {
     const val ROCK = "#607D8B"         // blue-grey
     const val UNKNOWN = "#BDBDBD"      // grey
 
-    /** Background — near-black, preserves night vision during overnight tours. */
-    const val BACKGROUND = "#101418"
-    const val WATER = "#0F2535"
-    const val LAND = "#1A1F25"
+    // Deprecated legacy aliases for backwards compatibility with tests
+    const val BACKGROUND = DarkMapColors.BACKGROUND
+    const val WATER = DarkMapColors.WATER
+    const val LAND = DarkMapColors.LAND
+}
+
+object DarkMapColors {
+    const val BACKGROUND = "#2A343C"
+    const val WATER = "#2C5F7E"
+    const val LAND = "#2E3A2A"
+    const val TEXT_COLOR = "#FFFFFF"
+    const val TEXT_HALO = "#000000"
+}
+
+object LightMapColors {
+    const val BACKGROUND = "#E8ECF0"
+    const val WATER = "#A8D0E8"
+    const val LAND = "#D2E3C8"
+    const val TEXT_COLOR = "#1E252D"
+    const val TEXT_HALO = "#FFFFFF"
 }
 
 /**
  * Maps an OSM `surface=*` tag value to its colour. Pure function — unit tested.
- *
- * Used both at style-build time (to bake the match expression into the style JSON) and
- * in the legend UI. Mirrors `surfaceFromOsm` in :core:domain but lives here because the
- * style layer speaks MapLibre's domain (raw OSM tags), not our domain enum.
  */
 fun colorForSurface(osmSurface: String?): String = when (osmSurface?.lowercase()) {
     "asphalt", "concrete", "chipseal", "concrete:lanes", "concrete:plates",

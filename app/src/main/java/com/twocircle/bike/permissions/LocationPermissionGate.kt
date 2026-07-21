@@ -74,7 +74,7 @@ fun LocationPermissionGate(
 
     PermissionRationaleDialog(
         visible = showRationale,
-        title = "Доступ к геолокации",
+        title = stringResource(R.string.perm_location_title),
         message = stringResource(R.string.perm_location_rationale),
         confirmLabel = stringResource(R.string.perm_location_action),
         onConfirm = {
@@ -86,7 +86,7 @@ fun LocationPermissionGate(
 
     PermissionRationaleDialog(
         visible = permanentlyDenied,
-        title = "Доступ к геолокации",
+        title = stringResource(R.string.perm_location_title),
         message = stringResource(R.string.perm_location_rationale),
         confirmLabel = stringResource(R.string.perm_location_settings),
         onConfirm = {

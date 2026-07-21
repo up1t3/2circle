@@ -49,5 +49,15 @@ private fun PlaceKind.toDomainKind(): Place.Kind = when (this) {
     PlaceKind.Campsite -> Place.Kind.Campsite
     PlaceKind.Viewpoint -> Place.Kind.Viewpoint
     PlaceKind.BicycleService -> Place.Kind.BicycleService
+    PlaceKind.BicycleRental -> Place.Kind.BicycleRental
+    PlaceKind.Pharmacy -> Place.Kind.Pharmacy
+    PlaceKind.Fuel -> Place.Kind.Fuel
+    PlaceKind.Cafe -> Place.Kind.Cafe
+    PlaceKind.Restaurant -> Place.Kind.Restaurant
+    PlaceKind.Hospital -> Place.Kind.Hospital
+    PlaceKind.Atm -> Place.Kind.Atm
+    PlaceKind.Water -> Place.Kind.Water
+    PlaceKind.Hotel -> Place.Kind.Hotel
+    PlaceKind.Shop -> Place.Kind.Shop
     PlaceKind.Other -> Place.Kind.Other
 }

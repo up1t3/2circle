@@ -106,20 +106,53 @@ class RegionDownloader @Inject constructor(
             regions.setState(entry.id, RegionInstallState.Failed)
             // Best-effort cleanup; leave the row in Failed state for retry.
             runCatching { assets.regionDir(entity).deleteRecursively() }
-            runCatching { tempFile.delete() }
+            // Keep the partial temp file so the next attempt can resume via Range.
+            // Only delete on non-network errors (e.g. SHA mismatch) where the file is
+            // genuinely corrupt and must be re-downloaded from scratch.
+            if (e.message?.contains("SHA-256") == true) {
+                runCatching { tempFile.delete() }
+            }
             emitProgress(entry.id, DownloadState.Failed, fraction = 0f, error = e.message)
         }
     }
 
     private fun downloadTo(entry: RegionEntry, target: File) {
         target.parentFile?.mkdirs()
-        val response = client.newCall(Request.Builder().url(entry.downloadUrl).build()).execute()
-        if (!response.isSuccessful) error("HTTP ${response.code} downloading ${entry.downloadUrl}")
+
+        // Resume support: if a partial file exists from a previous interrupted attempt,
+        // send a Range header to continue from where we left off. The server must
+        // support Range (206 Partial Content); if it doesn't, we fall back to full download.
+        val existingBytes = if (target.exists()) target.length() else 0L
+
+        val requestBuilder = Request.Builder().url(entry.downloadUrl)
+        if (existingBytes > 0) {
+            requestBuilder.header("Range", "bytes=$existingBytes-")
+            Timber.i("Resuming download of %s from byte %d", entry.id, existingBytes)
+        }
+
+        val response = client.newCall(requestBuilder.build()).execute()
+        val isPartial = response.code == 206
+        if (!response.isSuccessful && !isPartial) {
+            error("HTTP ${response.code} downloading ${entry.downloadUrl}")
+        }
+
         val body = response.body ?: error("Empty response body")
-        val totalBytes = body.contentLength().takeIf { it > 0 } ?: entry.sizeBytes
-        var read = 0L
+        // For 206: total = already-downloaded + remaining. For 200: total from Content-Length.
+        val contentLength = body.contentLength()
+        val totalBytes = if (isPartial) {
+            existingBytes + (if (contentLength > 0) contentLength else entry.sizeBytes - existingBytes)
+        } else {
+            if (contentLength > 0) contentLength else entry.sizeBytes
+        }
+        var read = existingBytes
+
+        // append = true for resume (206), false for fresh download (200).
+        // If server ignored Range and returned 200, start over.
+        val append = isPartial
+        if (!append && target.exists()) target.delete()
+
         body.byteStream().use { input ->
-            target.outputStream().use { output ->
+            java.io.FileOutputStream(target, append).use { output ->
                 val buf = ByteArray(64 * 1024)
                 while (true) {
                     val n = input.read(buf)

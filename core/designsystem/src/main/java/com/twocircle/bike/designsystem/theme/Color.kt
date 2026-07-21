@@ -34,26 +34,33 @@ object BikeColors {
     val HeartRate = Color(0xFFEF5350)
 }
 
-/** Dark palette (default for bicycle touring — preserves night vision). */
+/** Темная палитра (основная для велотуризма — сохраняет ночное зрение). */
 object BikeDarkColors {
-    val Background = Color(0xFF101418)
-    val Surface = Color(0xFF1A1F25)
-    val OnBackground = Color(0xFFE6E6E6)
-    val OnSurface = Color(0xFFE6E6E6)
-    val Primary = Color(0xFF66BB6A)
-    val OnPrimary = Color(0xFF003300)
-    val Secondary = Color(0xFF29B6F6)
-    val Error = Color(0xFFEF5350)
+    val Background = Color(0xFF1E252D)
+    val Surface = Color(0xFF262F38)
+    val SurfaceVariant = Color(0xFF2A343C)
+    val OnBackground = Color(0xFFE0E4E8)
+    val OnSurface = Color(0xFFE0E4E8)
+    val OnSurfaceMuted = Color(0xFF8B95A0)
+    val Primary = Color(0xFF4CAF50)
+    val OnPrimary = Color(0xFFFFFFFF)
+    val Secondary = Color(0xFF2C5F7E)
+    val Error = Color(0xFFEF4444)
+    val Success = Color(0xFF22C55E)
+    val Warning = Color(0xFFFFC107)
 }
 
-/** Light palette (day mode — high-contrast sunlight readability). */
+/** Светлая палитра (дневной режим — хорошая читаемость на солнце). */
 object BikeLightColors {
-    val Background = Color(0xFFF5F5F5)
+    val Background = Color(0xFFF5F7FA)
     val Surface = Color(0xFFFFFFFF)
-    val OnBackground = Color(0xFF1A1A1A)
-    val OnSurface = Color(0xFF1A1A1A)
-    val Primary = Color(0xFF2E7D32)
+    val SurfaceVariant = Color(0xFFE8ECF0)
+    val OnBackground = Color(0xFF1E252D)
+    val OnSurface = Color(0xFF1E252D)
+    val OnSurfaceMuted = Color(0xFF6B7280)
+    val Primary = Color(0xFF388E3C)
     val OnPrimary = Color(0xFFFFFFFF)
-    val Secondary = Color(0xFF0277BD)
-    val Error = Color(0xFFC62828)
+    val Secondary = Color(0xFF3B7CA8)
+    val Error = Color(0xFFDC2626)
 }
+

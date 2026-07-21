@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Empty-state illustration: no tracks yet. A dashed track line trailing off —
+  "nothing has been recorded here yet".
+  NB: strokeDashPathEffect isn't supported in <vector>; we approximate the dashed trail
+  with separate short strokes along the same curve.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="120dp"
+    android:viewportWidth="200"
+    android:viewportHeight="120">
+    <!-- Dashed segments approximated as multiple short strokes. -->
+    <path android:strokeColor="#3A3F45" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M20,90 L34,84" />
+    <path android:strokeColor="#3A3F45" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M44,79 L58,72" />
+    <path android:strokeColor="#3A3F45" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M68,66 L82,66" />
+    <path android:strokeColor="#3A3F45" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M92,69 L106,77" />
+    <path android:strokeColor="#3A3F45" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M116,72 L130,62" />
+    <path android:strokeColor="#3A3F45" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M140,52 L154,42" />
+    <path android:strokeColor="#3A3F45" android:strokeWidth="3" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M164,35 L178,28" />
+    <!-- Faded start point -->
+    <path android:strokeColor="#3A3F45" android:strokeWidth="2" android:fillColor="#00000000" android:pathData="M20,90 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0" />
+    <!-- Play glyph -->
+    <path android:fillColor="#66BB6A" android:pathData="M95,50 L120,65 L95,80 Z" />
+</vector>

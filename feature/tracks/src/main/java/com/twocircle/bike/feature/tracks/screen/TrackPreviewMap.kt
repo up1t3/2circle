@@ -38,9 +38,9 @@ fun TrackPreviewMap(
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(180.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFF101418)),
+            .height(200.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF1E252D)),
     ) {
         val coords = points.map { it.lat to it.lon }
         val minLat = coords.minOf { it.first }

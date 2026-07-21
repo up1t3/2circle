@@ -79,6 +79,7 @@ class TestKindFromTags(unittest.TestCase):
         )
 
     def test_poi_tags(self):
+        # Original curated set — backcountry / cycling POIs.
         self.assertEqual(
             bs.kind_from_tags(_FakeTags(natural="spring")), "spring",
         )
@@ -94,11 +95,66 @@ class TestKindFromTags(unittest.TestCase):
         self.assertEqual(
             bs.kind_from_tags(_FakeTags(shop="bicycle")), "bicycle_service",
         )
+        # Daily on-tour needs — added in v2.
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="pharmacy")), "pharmacy",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="fuel")), "fuel",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="cafe")), "cafe",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="restaurant")), "restaurant",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="hospital")), "hospital",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="clinic")), "hospital",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="atm")), "atm",
+        )
+        # bank → atm alias (cash source either way).
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="bank")), "atm",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="drinking_water")), "water",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(amenity="bicycle_rental")), "bicycle_rental",
+        )
+        # Lodging.
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(tourism="hotel")), "hotel",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(tourism="hostel")), "hotel",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(tourism="guest_house")), "hotel",
+        )
+        # Resupply shopping.
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(shop="supermarket")), "shop",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(shop="convenience")), "shop",
+        )
+        self.assertEqual(
+            bs.kind_from_tags(_FakeTags(shop="bakery")), "shop",
+        )
 
     def test_irrelevant_returns_none(self):
+        # Anything we deliberately don't surface as a POI should fall through.
         self.assertIsNone(bs.kind_from_tags(_FakeTags(place="country")))
         self.assertIsNone(bs.kind_from_tags(_FakeTags(highway="residential")))
-        self.assertIsNone(bs.kind_from_tags(_FakeTags(amenity="cafe")))
+        self.assertIsNone(bs.kind_from_tags(_FakeTags(building="yes")))
+        self.assertIsNone(bs.kind_from_tags(_FakeTags(landuse="residential")))
+        self.assertIsNone(bs.kind_from_tags(_FakeTags(amenity="parking")))
         self.assertIsNone(bs.kind_from_tags(_FakeTags()))
 
 

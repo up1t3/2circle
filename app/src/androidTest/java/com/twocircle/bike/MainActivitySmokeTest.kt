@@ -7,8 +7,10 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.twocircle.bike.designsystem.theme.BikeTheme
 import com.twocircle.bike.nav.TwoCircleNavHost
+import com.twocircle.bike.onboarding.OnboardingStore
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,6 +41,10 @@ class MainActivitySmokeTest {
     @Before
     fun setUp() {
         hiltRule.inject()
+        // Mark onboarding as completed so the activity launches straight into the nav
+        // host. Without this the first-run onboarding screen would intercept every test
+        // (no "No offline region" prompt would ever be visible).
+        runBlocking { OnboardingStore(composeRule.activity).setCompleted() }
     }
 
     @Test
@@ -95,11 +101,12 @@ class MainActivitySmokeTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Routes").performClick()
         composeRule.waitForIdle()
-        // Profile chips come from RoutingProfile.displayName — "Туринг/Шоссе/МТБ".
-        // Default locale on emulator is en-US, but the chips are enum constants so they
-        // render the same regardless of locale.
-        composeRule.onNodeWithText("Туринг").assertIsDisplayed()
-        composeRule.onNodeWithText("Шоссе").assertIsDisplayed()
-        composeRule.onNodeWithText("МТБ").assertIsDisplayed()
+        // Profile chips render via RoutingProfile.displayNameRes() — localised labels
+        // for Touring / Road / MTB. Default emulator locale is en-US, so the chips read
+        // "Touring / Road / MTB"; switch the assertion target together with the locale
+        // when this test is run under ru/es.
+        composeRule.onNodeWithText("Touring").assertIsDisplayed()
+        composeRule.onNodeWithText("Road").assertIsDisplayed()
+        composeRule.onNodeWithText("MTB").assertIsDisplayed()
     }
 }

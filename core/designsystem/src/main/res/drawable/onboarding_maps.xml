@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Onboarding illustration #1: a stylised map with a coloured road winding through it.
+  Reuses the brand's road-surface palette (green asphalt, orange gravel) so the
+  illustration reinforces the app's central visual concept.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="160dp"
+    android:viewportWidth="240"
+    android:viewportHeight="160">
+    <!-- Background card -->
+    <path android:fillColor="#1B2229" android:pathData="M0,0 h240 v160 h-240 z" />
+    <!-- Faint landcover grid -->
+    <path android:strokeColor="#2A3138" android:strokeWidth="1" android:pathData="M0,40 h240 M0,80 h240 M0,120 h240 M60,0 v160 M120,0 v160 M180,0 v160" />
+    <!-- Winding road — asphalt segment (green) -->
+    <path android:strokeColor="#66BB6A" android:strokeWidth="8" android:strokeLineCap="round" android:pathData="M30,130 C60,130 80,100 120,90 S180,40 210,30" />
+    <!-- Gravel branch (orange) -->
+    <path android:strokeColor="#FF9800" android:strokeWidth="6" android:strokeLineCap="round" android:pathData="M120,90 C140,80 150,60 160,40" />
+    <!-- Waypoint dots -->
+    <path android:fillColor="#FFFFFF" android:pathData="M30,130 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+    <path android:fillColor="#FFFFFF" android:pathData="M210,30 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+</vector>
