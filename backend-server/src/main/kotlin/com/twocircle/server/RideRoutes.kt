@@ -14,18 +14,11 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.and
 import java.sql.Timestamp
 
 /**
- * Ride CRUD + sync routes.
- *
- * POST   /api/v1/rides/sync — batch sync (upsert by externalId, last-write-wins)
- * GET    /api/v1/rides       — list current user's rides
- * GET    /api/v1/rides/{id}  — get one ride
- * DELETE /api/v1/rides/{id}  — delete one ride
- *
- * All routes require a valid JWT (authenticated user).
+ * Ride sync & history routes.
  */
 fun Route.rideRoutes() {
     authenticate("auth-jwt") {
@@ -34,14 +27,14 @@ fun Route.rideRoutes() {
             post("/sync") {
                 val userId = call.principal<io.ktor.server.auth.jwt.JWTPrincipal>()!!.payload.subject.toLong()
                 val req = call.receive<RideSyncRequest>()
-                val now = Timestamp(System.currentTimeMillis())
+                val now = java.time.Instant.now()
 
                 val accepted = mutableListOf<String>()
                 val conflicts = mutableListOf<String>()
 
                 DatabaseFactory.dbQuery {
                     req.rides.forEach { ride ->
-                        val existing = Rides.select {
+                        val existing = Rides.selectAll().where {
                             (Rides.externalId eq ride.externalId) and (Rides.userId eq userId)
                         }.firstOrNull()
 
@@ -76,7 +69,7 @@ fun Route.rideRoutes() {
             get {
                 val userId = call.principal<io.ktor.server.auth.jwt.JWTPrincipal>()!!.payload.subject.toLong()
                 val rows = DatabaseFactory.dbQuery {
-                    Rides.select { Rides.userId eq userId }
+                    Rides.selectAll().where { Rides.userId eq userId }
                         .orderBy(Rides.startedAtMs to org.jetbrains.exposed.sql.SortOrder.DESC)
                         .toList()
                 }
@@ -103,7 +96,7 @@ fun Route.rideRoutes() {
                     HttpStatusCode.BadRequest, ErrorResponse("missing_id", "externalId required")
                 )
                 val row = DatabaseFactory.dbQuery {
-                    Rides.select {
+                    Rides.selectAll().where {
                         (Rides.externalId eq externalId) and (Rides.userId eq userId)
                     }.firstOrNull()
                 }

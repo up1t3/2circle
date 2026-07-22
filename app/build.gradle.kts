@@ -31,7 +31,7 @@ android {
         buildConfigField(
             "String",
             "MANIFEST_URL",
-            "\"http://10.0.2.2:8765/manifest-emulator.json\"",
+            "\"http://72.56.238.106:8765/manifest.json\"",
         )
     }
 

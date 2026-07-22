@@ -43,8 +43,8 @@ object Rides : LongIdTable("rides") {
 }
 
 /**
- * Helper: current timestamp for Exposed timestamp columns.
+ * Helper: current Instant for Exposed timestamp columns.
  */
-fun nowTimestamp() = java.sql.Timestamp(Clock.System.now().toEpochMilliseconds())
+fun nowTimestamp(): java.time.Instant = java.time.Instant.now()
 
 fun nowIso() = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()

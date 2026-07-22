@@ -8,8 +8,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 import java.sql.Timestamp
 
@@ -41,7 +42,7 @@ fun Route.authRoutes() {
 
             // Check if email already exists
             val existing = DatabaseFactory.dbQuery {
-                Users.select { Users.email eq req.email }.firstOrNull()
+                Users.selectAll().where { Users.email eq req.email }.firstOrNull()
             }
             if (existing != null) {
                 call.respond(HttpStatusCode.Conflict, ErrorResponse("email_taken", "Email already registered"))
@@ -49,7 +50,7 @@ fun Route.authRoutes() {
             }
 
             // Create user
-            val now = Timestamp(System.currentTimeMillis())
+            val now = java.time.Instant.now()
             val hash = PasswordHasher.hash(req.password)
             val userId = DatabaseFactory.dbQuery {
                 Users.insert {
@@ -82,7 +83,7 @@ fun Route.authRoutes() {
             val req = call.receive<LoginRequest>()
 
             val row = DatabaseFactory.dbQuery {
-                Users.select { Users.email eq req.email }.firstOrNull()
+                Users.selectAll().where { Users.email eq req.email }.firstOrNull()
             }
             if (row == null) {
                 call.respond(HttpStatusCode.Unauthorized, ErrorResponse("invalid_credentials", "Wrong email or password"))
@@ -124,7 +125,7 @@ fun Route.authRoutes() {
             }
 
             val row = DatabaseFactory.dbQuery {
-                Users.select { Users.id eq userId }.firstOrNull()
+                Users.selectAll().where { Users.id eq userId }.firstOrNull()
             }
             if (row == null) {
                 call.respond(HttpStatusCode.Unauthorized, ErrorResponse("user_not_found", "User no longer exists"))
