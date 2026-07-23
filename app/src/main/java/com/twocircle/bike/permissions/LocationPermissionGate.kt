@@ -86,9 +86,16 @@ fun LocationPermissionGate(
     ) == android.content.pm.PackageManager.PERMISSION_GRANTED
     val isGranted = fineGranted || coarseGranted
 
-    if (isGranted) {
-        content()
-    } else {
+    // CRITICAL: render [content] ALWAYS, even before permission is granted.
+    // The previous conditional (`if (isGranted) content() else request`) meant the map
+    // (NavHost → MapScreen → BikeMap → MapView) was created mid-lifecycle after the user
+    // tapped "Allow" — the Activity was already RESUMED, so MapLibre's MapView missed the
+    // ON_CREATE/ON_START/ON_RESUME sequence and the style never loaded → grey screen that
+    // only recovered after a full app restart. Rendering content unconditionally lets the
+    // map mount during the normal lifecycle; the permission is just an overlay on top.
+    content()
+
+    if (!isGranted) {
         // Trigger initial request once.
         androidx.compose.runtime.LaunchedEffect(Unit) {
             launcher.launch(permissionsToRequest)

@@ -79,10 +79,11 @@ class MapViewModel @Inject constructor(
                 regionAssets.mbtilesPath(firstInstalled).exists(),
                 regionAssets.mbtilesPath(firstInstalled).length(),
             )
-            // Resolve the locale from app config so the place-label expression picks
-            // name:<lang> first. AppCompatDelegate.setApplicationLocales() and the
-            // per-app language API both update this on Android 13+.
-            val locale = appContext.resources.configuration.locales[0]
+            // Resolve the locale from the *app-level* language setting (SettingsScreen
+            // switches it via AppCompatDelegate.setApplicationLocales), NOT the device's
+            // system locale — otherwise a device on English system language shows OSM
+            // `name:en` (transliterated) even when the user picked Russian in app settings.
+            val locale = resolveAppLocale(appContext)
             val styleJson = MapStyleProvider.buildStyleJson(path, locale = locale)
             val camera = MapCamera(
                 lat = (firstInstalled.boundsMinLat + firstInstalled.boundsMaxLat) / 2.0,
@@ -103,7 +104,7 @@ class MapViewModel @Inject constructor(
             val firstInstalled = regionsRepository.activeRegionOrNull() ?: return@launch
             if (!regionAssets.hasTiles(firstInstalled)) return@launch
             val path = regionAssets.mbtilesPath(firstInstalled).absolutePath
-            val locale = appContext.resources.configuration.locales[0]
+            val locale = resolveAppLocale(appContext)
             val styleJson = MapStyleProvider.buildStyleJson(path, locale = locale, isDark = isDark)
             val currentReady = _state.value as? MapUiState.Ready
             if (currentReady != null) {
@@ -112,3 +113,24 @@ class MapViewModel @Inject constructor(
         }
     }
 }
+
+/**
+ * Resolve the user's chosen app language for OSM name-tag selection.
+ *
+ * Prefers the app-level locale override set from SettingsScreen
+ * (AppCompatDelegate.setApplicationLocales) over the device system locale, so the map
+ * labels honour the in-app language picker. On Android 13+ the override is synced to
+ * the platform LocaleManager and surfaces in `configuration.locales` already; on older
+ * versions we read the persisted override directly via `AppCompatDelegate`.
+ *
+ * Returns "ru"/"en"/"es" etc. matching OSM's `name:<lang>` tag convention.
+ */
+private fun resolveAppLocale(context: Context): Locale {
+    val appLocales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+    if (!appLocales.isEmpty) {
+        appLocales[0]?.let { return it }
+    }
+    // Empty list == "follow system": defer to whatever the device reports.
+    return context.resources.configuration.locales[0]
+}
+

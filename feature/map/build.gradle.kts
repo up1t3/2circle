@@ -42,6 +42,11 @@ dependencies {
     // MapLibre Native — offline vector tiles + runtime styling.
     api(libs.maplibre.android)
 
+    // AppCompat — needed only for AppCompatDelegate.getApplicationLocales() in
+    // MapViewModel.resolveAppLocale(), so map labels follow the in-app language picker
+    // (SettingsScreen) rather than the device system locale.
+    implementation(libs.androidx.appcompat)
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
