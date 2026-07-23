@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.MainThread
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -29,6 +31,8 @@ import kotlin.coroutines.resume
 class MyLocationController @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
+
+    private var locationCallback: LocationCallback? = null
 
     /**
      * Resolve the current best location, or null. Must be called off the main thread.
@@ -58,6 +62,51 @@ class MyLocationController @Inject constructor(
                     cont.resume(null)
                 }
         }
+    }
+
+    /**
+     * Start continuous location updates for active follow mode.
+     * Uses [Priority.PRIORITY_HIGH_ACCURACY] (combining GPS, GLONASS, Galileo) with 2000ms interval.
+     */
+    @SuppressLint("MissingPermission")
+    @MainThread
+    fun startContinuousUpdates(onLocationChanged: (LatLon) -> Unit) {
+        if (!hasPermission()) {
+            Timber.w("MyLocation: location permission not granted for continuous updates")
+            return
+        }
+        stopContinuousUpdates()
+
+        val request = com.google.android.gms.location.LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L)
+            .setMinUpdateIntervalMillis(1000L)
+            .build()
+
+        val cb = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                val loc = result.lastLocation ?: return
+                Timber.d("MyLocation: continuous fix lat=%.5f, lon=%.5f, acc=%.1fm", loc.latitude, loc.longitude, loc.accuracy)
+                onLocationChanged(LatLon(loc.latitude to loc.longitude))
+            }
+        }
+        locationCallback = cb
+
+        val client = LocationServices.getFusedLocationProviderClient(context)
+        client.requestLocationUpdates(request, cb, android.os.Looper.getMainLooper())
+            .addOnFailureListener { e ->
+                Timber.w(e, "MyLocation: failed to request continuous location updates")
+            }
+    }
+
+    /**
+     * Stop continuous updates to save battery when follow mode is turned off.
+     */
+    @SuppressLint("MissingPermission")
+    @MainThread
+    fun stopContinuousUpdates() {
+        val cb = locationCallback ?: return
+        locationCallback = null
+        val client = LocationServices.getFusedLocationProviderClient(context)
+        client.removeLocationUpdates(cb)
     }
 
     private fun hasPermission(): Boolean =

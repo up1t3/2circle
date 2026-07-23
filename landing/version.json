@@ -1,0 +1,7 @@
+{
+  "versionCode": 7,
+  "versionName": "0.7.0",
+  "apkUrl": "http://72.56.238.106/app-debug.apk",
+  "forceUpdate": false,
+  "releaseNotes": "Авто-обновление приложения v0.7.0 (сборка 7). Устранены вылеты и сетевые ошибки."
+}

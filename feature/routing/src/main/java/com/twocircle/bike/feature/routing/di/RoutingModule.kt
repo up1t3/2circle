@@ -74,4 +74,14 @@ abstract class RoutingEngineModule {
     @Binds
     @Singleton
     abstract fun bindRoutingEngine(impl: com.twocircle.bike.feature.routing.engine.SmartRoutingEngine): RoutingEngine
+
+    /** Exposes the planned route to :feature:map without a module cycle. See [PlannedRouteHolder]. */
+    @Binds
+    @Singleton
+    abstract fun bindPlannedRouteHolder(impl: com.twocircle.bike.feature.routing.screen.RouteDraftRepository): com.twocircle.bike.domain.PlannedRouteHolder
+
+    /** Exposes draft-waypoint mutations to :feature:map without a module cycle. See [RouteDraftMutator]. */
+    @Binds
+    @Singleton
+    abstract fun bindRouteDraftMutator(impl: com.twocircle.bike.feature.routing.screen.RouteDraftRepository): com.twocircle.bike.domain.RouteDraftMutator
 }

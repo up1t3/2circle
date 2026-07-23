@@ -38,6 +38,11 @@
     <string name="map_error_region_corrupted">Region files are corrupted</string>
     <string name="map_error_storage_inaccessible">Storage is not accessible</string>
     <string name="map_error_generic">Unexpected error</string>
+    <string name="action_confirm">OK</string>
+    <string name="map_edit_place_hint">Drag the map, then confirm</string>
+    <string name="map_edit_drag_hint">Move the pin, then confirm</string>
+    <string name="map_nav_start">Start navigation</string>
+    <string name="map_nav_need_route">Plan a route first</string>
 
     <!-- ============================================================ -->
     <!-- Search screen                                                -->
@@ -328,6 +333,8 @@
     <string name="auth_error_password_mismatch">Passwords do not match</string>
     <string name="auth_error_terms">Please accept the terms of service</string>
     <string name="auth_error_network">Network error. Check your connection.</string>
+    <string name="auth_error_email_taken">This email is already registered. Please log in.</string>
+    <string name="auth_error_invalid_credentials">Invalid email or password.</string>
     <string name="auth_error_generic">Something went wrong. Please try again.</string>
 
     <!-- Profile achievements -->

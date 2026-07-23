@@ -35,6 +35,7 @@ class TrackOverlayLayer(
     companion object {
         private const val SOURCE_ID = "track-overlay-source"
         private const val LAYER_ID = "track-overlay-layer"
+        private const val ROUTE_LAYER_REF = "route-overlay-layer"
     }
 
     /** Start subscribing and rendering. Idempotent — safe to call once. */
@@ -53,7 +54,13 @@ class TrackOverlayLayer(
                     PropertyFactory.lineOpacity(0.85f),
                 )
             }
-            style.addLayerAbove(layer, "road")
+            // Draw live track above the planned route line so actual progress is visible on top of plan.
+            // Depends on route-overlay-layer being attached first; order matters in MapScreen.onMapReady.
+            val routeLayer = style.getLayer(ROUTE_LAYER_REF)
+            checkNotNull(routeLayer) {
+                "TrackOverlayLayer: '$ROUTE_LAYER_REF' not found in style. Order matters in MapScreen.onMapReady (POI -> Route -> Track -> Waypoint)."
+            }
+            style.addLayerAbove(layer, ROUTE_LAYER_REF)
         }
         job = overlay.polyline
             .onEach { points -> renderPoints(points) }

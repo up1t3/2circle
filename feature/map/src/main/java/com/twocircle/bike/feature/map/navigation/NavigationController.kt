@@ -2,6 +2,7 @@ package com.twocircle.bike.feature.map.navigation
 
 import com.twocircle.bike.domain.model.Coord
 import com.twocircle.bike.domain.model.Route
+import com.twocircle.bike.domain.navigation.NavigationSink
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -64,7 +65,15 @@ data class NavigationUiState(
 @Singleton
 class NavigationController @Inject constructor(
     private val ttsController: TtsController,
-) {
+) : NavigationSink {
+
+    override fun isActive(): Boolean = _uiState.value.state.let {
+        it is NavigationState.Active || it is NavigationState.OffRoute
+    }
+
+    override fun onLocationUpdate(lat: Double, lon: Double, speedMps: Float) {
+        updatePosition(lat, lon, speedMps.toDouble())
+    }
 
     private val _uiState = MutableStateFlow(NavigationUiState())
     val uiState: StateFlow<NavigationUiState> = _uiState.asStateFlow()

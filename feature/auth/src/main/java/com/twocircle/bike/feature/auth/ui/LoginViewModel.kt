@@ -21,6 +21,8 @@ sealed interface AuthError {
     data object EmptyName : AuthError
     data object PasswordMismatch : AuthError
     data object TermsNotAccepted : AuthError
+    data object EmailTaken : AuthError
+    data object InvalidCredentials : AuthError
     data object NetworkError : AuthError
     data object GenericError : AuthError
 }
@@ -54,7 +56,14 @@ class LoginViewModel @Inject constructor(
             _uiState.value = LoginUiState.Loading
             authRepository.login(email, password)
                 .onSuccess { user -> _uiState.value = LoginUiState.Success(user) }
-                .onFailure { _uiState.value = LoginUiState.Error(AuthError.NetworkError) }
+                .onFailure { throwable ->
+                    val error = when {
+                        throwable.message?.contains("invalid_credentials") == true || throwable.message?.contains("HTTP 401") == true -> AuthError.InvalidCredentials
+                        throwable is java.net.UnknownHostException || throwable is java.net.ConnectException -> AuthError.NetworkError
+                        else -> AuthError.GenericError
+                    }
+                    _uiState.value = LoginUiState.Error(error)
+                }
         }
     }
 

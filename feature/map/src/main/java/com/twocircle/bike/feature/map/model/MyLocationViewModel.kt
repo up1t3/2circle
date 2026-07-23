@@ -41,17 +41,32 @@ class MyLocationViewModel @Inject constructor(
     }
 
     /**
-     * Toggle follow mode. Turning it on also triggers an immediate [resolve] so the
-     * camera jumps to the user right away rather than waiting for the next refresh.
+     * Toggle follow mode.
+     * Turning it on triggers an immediate [resolve] for an instant camera jump,
+     * then starts continuous high-accuracy location updates.
+     * Turning it off stops continuous updates.
      */
     fun toggleFollowing() {
         val newFollow = !_following.value
         _following.value = newFollow
-        if (newFollow) resolve()
+        if (newFollow) {
+            resolve()
+            controller.startContinuousUpdates { loc ->
+                _location.value = loc
+            }
+        } else {
+            controller.stopContinuousUpdates()
+        }
     }
 
     /** Stop following — called when the user manually pans the map. */
     fun stopFollowing() {
         _following.value = false
+        controller.stopContinuousUpdates()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        controller.stopContinuousUpdates()
     }
 }

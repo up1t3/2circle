@@ -122,6 +122,7 @@ fun TwoCircleNavHost() {
                     onOpenSearch = { nav.navigate("search") },
                     onOpenRide = { nav.navigate("ride") },
                     onOpenSettings = { nav.navigate("settings") },
+                    onOpenRegions = { nav.navigate("regions") },
                     onLongPressAt = { lat, lon ->
                         draftViewModel.addWaypointManual(
                             com.twocircle.bike.domain.model.Coord(lat, lon),
@@ -233,7 +234,9 @@ fun TwoCircleNavHost() {
                 com.twocircle.bike.feature.regions.screen.RegionsScreen()
             }
             composable("settings") {
-                com.twocircle.bike.ui.screens.SettingsScreen()
+                com.twocircle.bike.ui.screens.SettingsScreen(
+                    onNavigateToRegions = { nav.navigate("regions") },
+                )
             }
         }
     }

@@ -76,6 +76,7 @@ fun RegisterScreen(
                     AuthError.WeakPassword -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_weak_password)
                     AuthError.PasswordMismatch -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_password_mismatch)
                     AuthError.TermsNotAccepted -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_terms)
+                    AuthError.EmailTaken -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_email_taken)
                     AuthError.NetworkError -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_network)
                     else -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_generic)
                 }

@@ -190,11 +190,21 @@ private fun RegionCard(
                 RegionInstallState.Installed -> OutlinedButton(onClick = onDelete) {
                     Text(stringResource(R.string.action_delete))
                 }
-                RegionInstallState.NotInstalled -> Button(onClick = onDownload) {
+                RegionInstallState.NotInstalled -> Button(
+                    onClick = onDownload,
+                    enabled = row.entry != null,
+                ) {
                     Text(stringResource(R.string.action_download))
                 }
-                RegionInstallState.Failed -> Button(onClick = onDownload) {
-                    Text(stringResource(R.string.action_retry))
+                RegionInstallState.Failed -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (row.entry != null) {
+                        Button(onClick = onDownload) {
+                            Text(stringResource(R.string.action_retry))
+                        }
+                    }
+                    OutlinedButton(onClick = onDelete) {
+                        Text(stringResource(R.string.action_delete))
+                    }
                 }
                 else -> Text(
                     stringResource(row.installState.displayNameRes()),

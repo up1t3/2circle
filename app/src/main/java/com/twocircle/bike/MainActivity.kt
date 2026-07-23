@@ -21,6 +21,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+import androidx.lifecycle.lifecycleScope
+import com.twocircle.bike.update.AppUpdateManager
+import com.twocircle.bike.update.UpdateDialog
+import com.twocircle.bike.update.UpdateState
+import javax.inject.Inject
+
 /**
  * Single-activity shell.
  *
@@ -31,12 +37,20 @@ import timber.log.Timber
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var updateManager: AppUpdateManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         ThemeState.init(this)
+
+        // Check for updates on application launch
+        lifecycleScope.launch {
+            updateManager.checkForUpdates()
+        }
 
         val onboarding = OnboardingStore(this)
         var onboardingReady = false
@@ -50,6 +64,9 @@ class MainActivity : AppCompatActivity() {
                 val completed by onboarding.completed.collectAsState(initial = null)
                 val scope = rememberCoroutineScope()
                 onboardingReady = completed != null
+
+                val updateState by updateManager.updateState.collectAsState()
+
                 when (completed) {
                     null -> Unit
                     false -> OnboardingScreen(
@@ -57,7 +74,21 @@ class MainActivity : AppCompatActivity() {
                             scope.launch { onboarding.setCompleted() }
                         },
                     )
-                    true -> TwoCircleNavHost()
+                    true -> com.twocircle.bike.permissions.LocationPermissionGate {
+                        TwoCircleNavHost()
+                    }
+                }
+
+                val activeInfo = (updateState as? UpdateState.Available)?.info ?: updateManager.lastVersionInfo
+                if (activeInfo != null && (updateState is UpdateState.Available || updateState is UpdateState.Downloading)) {
+                    UpdateDialog(
+                        state = updateState,
+                        info = activeInfo,
+                        onUpdateClick = { info ->
+                            lifecycleScope.launch { updateManager.downloadAndInstallApk(info) }
+                        },
+                        onDismiss = { updateManager.dismissUpdate() },
+                    )
                 }
             }
         }

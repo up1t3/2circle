@@ -6,6 +6,7 @@ import com.twocircle.bike.data.db.entity.TrackStatus
 import com.twocircle.bike.data.repository.TracksRepository
 import com.twocircle.bike.designsystem.R as DesignSystemR
 import com.twocircle.bike.domain.model.Coord
+import com.twocircle.bike.domain.navigation.NavigationSink
 import com.twocircle.bike.feature.tracking.model.PointSample
 import com.twocircle.bike.feature.tracking.model.SamplerState
 import com.twocircle.bike.feature.tracking.model.TrackAggregates
@@ -52,6 +53,7 @@ class TrackingController @Inject constructor(
     private val tracks: TracksRepository,
     private val pipeline: PointPipeline,
     private val overlay: TrackOverlayController,
+    private val navigationSink: NavigationSink,
     @ApplicationContext private val appContext: Context,
 ) {
 
@@ -145,6 +147,15 @@ class TrackingController @Inject constructor(
             pipeline.enqueue(accepted)
             // Push to the map overlay so the live polyline renders on the main map.
             overlay.appendPoint(Coord(lat = accepted.lat, lon = accepted.lon, ele = accepted.ele))
+            // Forward to the turn-by-turn engine if a navigation session is running.
+            // Cheap no-op otherwise (the sink checks isActive() before doing work).
+            if (navigationSink.isActive()) {
+                navigationSink.onLocationUpdate(
+                    lat = accepted.lat,
+                    lon = accepted.lon,
+                    speedMps = accepted.speedMps ?: 0f,
+                )
+            }
             _state.value = _state.value.copy(aggregates = updatedAgg, sampler = sampler)
             // Mirror aggregates into the track row periodically (the service drives this).
         } else {

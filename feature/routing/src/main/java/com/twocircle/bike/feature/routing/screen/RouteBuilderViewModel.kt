@@ -57,7 +57,7 @@ class RouteBuilderViewModel @Inject constructor(
     private val _planState = MutableStateFlow<PlanState>(PlanState.Idle)
     val planState: StateFlow<PlanState> = _planState.asStateFlow()
 
-    /** Add a manual (long-press) waypoint via the shared repository. */
+    /** Add a manual (long-press / tap-to-place) waypoint via the shared repository. */
     fun addWaypointManual(coord: Coord, name: String? = null) =
         draftRepository.addWaypoint(coord, name, Waypoint.Source.Manual)
 
@@ -71,6 +71,12 @@ class RouteBuilderViewModel @Inject constructor(
 
     /** Удалить путевую точку по ID. */
     fun removeWaypoint(id: WaypointId) = draftRepository.removeWaypoint(id)
+
+    /** Переместить путевую точку (drag-to-move on map). Invalidates any planned route. */
+    fun updateWaypointCoord(id: WaypointId, coord: Coord) = draftRepository.updateWaypointCoord(id, coord)
+
+    /** Задать имя путевой точке (e.g. после offline reverse-geocode). */
+    fun updateWaypointName(id: WaypointId, name: String?) = draftRepository.updateWaypointName(id, name)
 
     /** Переместить путевую точку. */
     fun moveWaypoint(fromIndex: Int, toIndex: Int) = draftRepository.moveWaypoint(fromIndex, toIndex)
@@ -87,6 +93,9 @@ class RouteBuilderViewModel @Inject constructor(
             val planId = RoutePlanId(UUID.randomUUID().toString())
             engine.route(wps, activeProfile, planId)
                 .onSuccess { route ->
+                    // Publish to the singleton holder so :feature:map can render the
+                    // polyline and offer "start navigation" without a module dependency.
+                    draftRepository.publishPlannedRoute(route)
                     _planState.value = PlanState.Planned(route)
                 }
                 .onFailure { failure ->

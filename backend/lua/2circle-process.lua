@@ -55,6 +55,7 @@ aerodromeValues = Set { "international", "public", "regional", "military", "priv
 
 node_keys = { "addr:housenumber","aerialway","aeroway","amenity","barrier","highway","historic","leisure","natural","office","place","railway","shop","sport","tourism","waterway" }
 function node_function(node)
+	if not node then return end
 	-- Write 'aerodrome_label'
 	local aeroway = node:Find("aeroway")
 	if aeroway == "aerodrome" then
@@ -210,6 +211,7 @@ waterwayClasses = Set { "stream", "river", "canal", "drain", "ditch" }
 -- Scan relations for use in ways
 
 function relation_scan_function(relation)
+	if not relation then return end
 	if relation:Find("type")=="boundary" and relation:Find("boundary")=="administrative" then
 		relation:Accept()
 	end
@@ -218,6 +220,7 @@ end
 -- Process way tags
 
 function way_function(way)
+	if not way then return end
 	local route    = way:Find("route")
 	local highway  = way:Find("highway")
 	local waterway = way:Find("waterway")

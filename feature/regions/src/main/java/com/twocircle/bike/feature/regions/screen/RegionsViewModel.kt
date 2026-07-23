@@ -61,6 +61,13 @@ class RegionsViewModel @Inject constructor(
             when (val r = catalog.fetch()) {
                 is Outcome.Success -> {
                     cachedCatalog = r.value.regions
+                    val validIds = r.value.regions.map { it.id }.toSet()
+                    val local = regions.allFlow().firstOrNull() ?: emptyList()
+                    local.forEach { entity ->
+                        if (entity.id !in validIds && entity.installState != RegionInstallState.Installed) {
+                            regions.delete(entity.id)
+                        }
+                    }
                     // Force re-emission: combine() doesn't observe cachedCatalog (a
                     // plain field, not a flow), so without this nudge the rows list
                     // wouldn't refresh after a successful fetch.

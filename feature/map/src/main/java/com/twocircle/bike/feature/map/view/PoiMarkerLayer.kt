@@ -1,5 +1,6 @@
 package com.twocircle.bike.feature.map.view
 
+import com.twocircle.bike.feature.map.style.PoiColors
 import com.twocircle.bike.feature.poi.model.Poi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
 import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.style.expressions.Expression
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.sources.GeoJsonSource
@@ -52,13 +54,14 @@ class PoiMarkerLayer(
                 setProperties(
                     // Circle marker drawn via text + a Unicode bullet. We don't ship a
                     // raster sprite (yet) — Phase 2.6 will swap this for a per-category
-                    // vector icon. Until then, "● Name" reads clearly on the dark map.
+                    // vector icon. Until then, "● Name" reads clearly on the dark map,
+                    // with colour differentiated by `kind` (see [PoiColors]).
                     PropertyFactory.textField("● {name}"),
                     PropertyFactory.textFont(arrayOf("Open Sans Semibold")),
                     PropertyFactory.textSize(11f),
                     PropertyFactory.textAnchor("bottom"),
                     PropertyFactory.textOffset(arrayOf(0f, -0.5f)),
-                    PropertyFactory.textColor("#FFC107"),
+                    PropertyFactory.textColor(kindColorExpression()),
                     PropertyFactory.textHaloColor("#000000"),
                     PropertyFactory.textHaloWidth(1.2f),
                     PropertyFactory.textAllowOverlap(true),
@@ -114,5 +117,22 @@ class PoiMarkerLayer(
             .put("type", "FeatureCollection")
             .put("features", features)
             .toString()
+    }
+
+    /**
+     * Builds a MapLibre `match` expression that maps the per-feature `kind` property
+     * (an OSM value such as `"pharmacy"`, `"atm"`) to a category colour from [PoiColors].
+     * Unknown kinds fall back to [PoiColors.DEFAULT]. The expression is re-evaluated by
+     * MapLibre on every source update, so colour changes cost nothing at the data layer.
+     */
+    private fun kindColorExpression(): Expression {
+        val args = ArrayList<Expression>()
+        args.add(Expression.get("kind"))
+        for ((osmValue, hex) in PoiColors.byKind) {
+            args.add(Expression.literal(osmValue))
+            args.add(Expression.literal(hex))
+        }
+        args.add(Expression.literal(PoiColors.DEFAULT))
+        return Expression.match(*args.toTypedArray())
     }
 }

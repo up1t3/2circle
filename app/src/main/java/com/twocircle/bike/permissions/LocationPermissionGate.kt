@@ -29,19 +29,36 @@ import com.twocircle.bike.R
  */
 @Composable
 fun LocationPermissionGate(
-    onGranted: () -> Unit,
-    onDenied: () -> Unit,
+    onGranted: () -> Unit = {},
+    onDenied: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
     var permanentlyDenied by remember { mutableStateOf(false) }
     var showRationale by remember { mutableStateOf(false) }
 
+    // TODO: Background location (ACCESS_BACKGROUND_LOCATION) must be requested separately
+    // when the user starts a ride (Android 11+ requires requesting background location after
+    // fine location is granted, not in the same dialog).
+
+    val permissionsToRequest = remember {
+        buildList {
+            add(Manifest.permission.ACCESS_FINE_LOCATION)
+            add(Manifest.permission.ACCESS_COARSE_LOCATION)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }.toTypedArray()
+    }
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { result ->
-        val granted = result[Manifest.permission.ACCESS_FINE_LOCATION] == true
-        if (granted) {
+        val fineGranted = result[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val coarseGranted = result[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        val locationGranted = fineGranted || coarseGranted
+
+        if (locationGranted) {
             onGranted()
         } else {
             // After denial, if the activity no longer wants to show rationale, the user
@@ -49,7 +66,9 @@ fun LocationPermissionGate(
             val activity = context as? Activity
             val shouldRationale = activity?.shouldShowRequestPermissionRationale(
                 Manifest.permission.ACCESS_FINE_LOCATION,
-            ) ?: false
+            ) == true || activity?.shouldShowRequestPermissionRationale(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ) == true
             if (shouldRationale) {
                 showRationale = true
             } else {
@@ -59,16 +78,20 @@ fun LocationPermissionGate(
         }
     }
 
-    val isGranted = ContextCompat.checkSelfPermission(
+    val fineGranted = ContextCompat.checkSelfPermission(
         context, Manifest.permission.ACCESS_FINE_LOCATION,
     ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    val coarseGranted = ContextCompat.checkSelfPermission(
+        context, Manifest.permission.ACCESS_COARSE_LOCATION,
+    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+    val isGranted = fineGranted || coarseGranted
 
     if (isGranted) {
         content()
     } else {
         // Trigger initial request once.
         androidx.compose.runtime.LaunchedEffect(Unit) {
-            launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+            launcher.launch(permissionsToRequest)
         }
     }
 
@@ -79,7 +102,7 @@ fun LocationPermissionGate(
         confirmLabel = stringResource(R.string.perm_location_action),
         onConfirm = {
             showRationale = false
-            launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+            launcher.launch(permissionsToRequest)
         },
         onDismiss = { showRationale = false },
     )

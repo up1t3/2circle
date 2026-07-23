@@ -24,6 +24,11 @@
     <string name="map_error_region_corrupted">Файлы региона повреждены</string>
     <string name="map_error_storage_inaccessible">Хранилище недоступно</string>
     <string name="map_error_generic">Непредвиденная ошибка</string>
+    <string name="action_confirm">ОК</string>
+    <string name="map_edit_place_hint">Перетащите карту и подтвердите</string>
+    <string name="map_edit_drag_hint">Передвиньте точку и подтвердите</string>
+    <string name="map_nav_start">Начать навигацию</string>
+    <string name="map_nav_need_route">Сначала постройте маршрут</string>
 
     <!-- Search screen -->
     <string name="search_placeholder">Поиск мест, источников, перевалов…</string>
@@ -281,6 +286,8 @@
     <string name="auth_error_password_mismatch">Пароли не совпадают</string>
     <string name="auth_error_terms">Примите условия использования</string>
     <string name="auth_error_network">Ошибка сети. Проверьте подключение.</string>
+    <string name="auth_error_email_taken">Этот Email уже зарегистрирован. Войдите под своей учетной записью.</string>
+    <string name="auth_error_invalid_credentials">Неверный Email или пароль</string>
     <string name="auth_error_generic">Что-то пошло не так. Попробуйте снова.</string>
 
     <!-- Достижения -->

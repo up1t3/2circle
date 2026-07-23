@@ -75,6 +75,7 @@ fun LoginScreen(
                 val errorMsg = when (state.error) {
                     AuthError.InvalidEmail -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_invalid_email)
                     AuthError.WeakPassword -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_weak_password)
+                    AuthError.InvalidCredentials -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_invalid_credentials)
                     AuthError.NetworkError -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_network)
                     else -> context.getString(com.twocircle.bike.designsystem.R.string.auth_error_generic)
                 }

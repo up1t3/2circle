@@ -16,8 +16,8 @@ android {
         applicationId = "com.twocircle.bike"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 10
+        versionName = "0.8.2"
 
         // v1 UI locales. Default (values/) is English; ru and es ship explicitly.
         // resConfigs also strips unused locales bundled by transitive deps (Hilt, Room,
@@ -35,9 +35,23 @@ android {
         )
     }
 
+    signingConfigs {
+        // Temporary release signing via the debug keystore. Lets us ship a signed APK
+        // now (the project has no dedicated release keystore yet); installs update
+        // in-place over debug builds. Swap for a real release key before Play Store.
+        // ~/.android/debug.keystore: alias=androiddebugkey, store/key password=android.
+        create("releaseFromDebug") {
+            storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("releaseFromDebug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

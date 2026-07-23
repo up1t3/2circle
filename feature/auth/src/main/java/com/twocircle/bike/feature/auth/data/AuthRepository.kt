@@ -103,13 +103,13 @@ class AuthRepository @Inject constructor(
         prefs.edit()
             .putString("access_token", auth.accessToken)
             .putString("refresh_token", auth.refreshToken)
-            .putString("user_id", user.id)
+            .putString("user_id", user.id.toString())
             .putString("email", user.email)
             .putString("display_name", user.displayName)
             .apply()
 
         _user.value = User(
-            id = user.id,
+            id = user.id.toString(),
             email = user.email,
             displayName = user.displayName,
             avatarUrl = user.avatarUrl,
@@ -118,19 +118,25 @@ class AuthRepository @Inject constructor(
         )
     }
 
-    private fun apiCall(url: String, jsonBody: String): String {
+    private suspend fun apiCall(url: String, jsonBody: String): String = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val request = Request.Builder()
             .url(url)
             .post(jsonBody.toRequestBody("application/json".toMediaType()))
             .build()
 
         client.newCall(request).execute().use { response ->
+            val bodyString = response.body?.string() ?: ""
             if (!response.isSuccessful) {
-                val errorBody = response.body?.string() ?: "Unknown error"
-                throw Exception("HTTP ${response.code}: $errorBody")
+                val errorMsg = if (bodyString.contains("email_taken")) {
+                    "email_taken"
+                } else if (bodyString.contains("invalid_credentials")) {
+                    "invalid_credentials"
+                } else {
+                    "HTTP ${response.code}: $bodyString"
+                }
+                throw Exception(errorMsg)
             }
-            return response.body?.string()
-                ?: throw Exception("Empty response body")
+            return@use if (bodyString.isNotEmpty()) bodyString else throw Exception("Empty response body")
         }
     }
 }
@@ -160,7 +166,7 @@ data class AuthResponse(
 
 @Serializable
 data class UserDto(
-    val id: String,
+    val id: Long,
     val email: String,
     val displayName: String,
     val avatarUrl: String? = null,
@@ -168,7 +174,7 @@ data class UserDto(
     val city: String? = null,
 ) {
     fun toDomain() = User(
-        id = id,
+        id = id.toString(),
         email = email,
         displayName = displayName,
         avatarUrl = avatarUrl,

@@ -52,7 +52,14 @@ class RegisterViewModel @Inject constructor(
             _uiState.value = RegisterUiState.Loading
             authRepository.register(email, password, name)
                 .onSuccess { user -> _uiState.value = RegisterUiState.Success(user) }
-                .onFailure { _uiState.value = RegisterUiState.Error(AuthError.NetworkError) }
+                .onFailure { throwable ->
+                    val error = when {
+                        throwable.message?.contains("email_taken") == true || throwable.message?.contains("HTTP 409") == true -> AuthError.EmailTaken
+                        throwable is java.net.UnknownHostException || throwable is java.net.ConnectException -> AuthError.NetworkError
+                        else -> AuthError.GenericError
+                    }
+                    _uiState.value = RegisterUiState.Error(error)
+                }
         }
     }
 

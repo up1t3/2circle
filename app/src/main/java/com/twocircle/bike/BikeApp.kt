@@ -2,6 +2,7 @@ package com.twocircle.bike
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import org.maplibre.android.MapLibre
 import timber.log.Timber
 
 /**
@@ -14,6 +15,8 @@ import timber.log.Timber
 class BikeApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        // MapLibre MUST be initialized on Application startup before any MapView inflation
+        MapLibre.getInstance(this)
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }

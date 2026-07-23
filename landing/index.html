@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2circle — Офлайн-навигатор для велопутешествий</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Офлайн-карты с раскраской дорог по покрытию, голосовая навигация, POI, запись треков и сообщество райдеров. Android, бесплатно.">
+  <meta name="keywords" content="велонавигатор, офлайн карты, велосипед, GPX, маршруты, brouter, 2circle">
+  <meta name="author" content="2circle Team">
+
+  <!-- Open Graph / Social Media -->
+  <meta property="og:title" content="2circle — Велопутешествия без границ">
+  <meta property="og:description" content="Офлайн-карты с раскраской дорог по покрытию. Голосовая навигация. Запись треков. Бесплатно для Android.">
+  <meta property="og:image" content="https://2circle.ru/og-image.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://2circle.ru">
+  <meta property="og:locale" content="ru_RU">
+
+  <!-- Favicon -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <svg width="28" height="28" viewBox="0 0 64 64">
+          <circle cx="24" cy="32" r="18" fill="none" stroke="#4CAF50" stroke-width="7" />
+          <circle cx="40" cy="32" r="18" fill="none" stroke="#2C5F7E" stroke-width="7" opacity="0.9" />
+        </svg>
+        <span>2circle</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Возможности</a></li>
+        <li><a href="#surfaces">Покрытия</a></li>
+        <li><a href="#screenshots">Скриншоты</a></li>
+        <li><a href="#download" class="btn-header">Скачать APK</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <h1 class="hero-title">Велопутешествия без границ</h1>
+        <p class="hero-subtitle">
+          Офлайн-карты с раскраской дорог по типу покрытия. Голосовая навигация, BRouter маршруты и запись GPX треков.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="/app-debug.apk" class="btn-primary" download>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Скачать APK (63 МБ)
+          </a>
+          <a href="#features" class="btn-secondary">
+            Смотреть возможности &rarr;
+          </a>
+        </div>
+
+        <div class="hero-badges">
+          <div class="badge-item">
+            <span class="badge-dot"></span> Android 8.0+
+          </div>
+          <div class="badge-item">
+            <span class="badge-dot"></span> 100% Бесплатно
+          </div>
+          <div class="badge-item">
+            <span class="badge-dot"></span> Без рекламы
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone Mockup with Custom Vector Map -->
+      <div class="mockup-container">
+        <div class="phone-mockup">
+          <div class="phone-screen">
+            <svg class="mockup-map-svg" viewBox="0 0 340 600" xmlns="http://www.w3.org/2000/svg">
+              <!-- Dark Map Background -->
+              <rect width="340" height="600" fill="#111A24" />
+              <!-- Water Area -->
+              <path d="M 0,180 Q 80,220 160,190 T 340,240 L 340,310 Q 200,260 0,300 Z" fill="#1B3A4B" />
+              <!-- Asphalt Roads (Green) -->
+              <path d="M 30,0 Q 80,150 140,280 T 260,600" fill="none" stroke="#4CAF50" stroke-width="8" stroke-linecap="round" />
+              <path d="M 140,280 Q 220,200 340,160" fill="none" stroke="#4CAF50" stroke-width="6" stroke-linecap="round" />
+              <!-- Gravel Roads (Orange) -->
+              <path d="M 0,400 Q 120,380 200,480 T 340,520" fill="none" stroke="#FF9800" stroke-width="6" stroke-dasharray="10 4" stroke-linecap="round" />
+              <!-- Dirt Tracks (Brown) -->
+              <path d="M 80,100 Q 200,90 280,30" fill="none" stroke="#8D6E63" stroke-width="5" stroke-dasharray="6 4" stroke-linecap="round" />
+              <!-- Sand Paths (Red) -->
+              <path d="M 200,480 Q 280,440 310,360" fill="none" stroke="#F44336" stroke-width="4" stroke-linecap="round" />
+
+              <!-- Route Line overlay -->
+              <path d="M 50,550 L 140,280 L 220,200 L 280,150" fill="none" stroke="#00E5FF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="50" cy="550" r="8" fill="#4CAF50" stroke="#FFFFFF" stroke-width="3" />
+              <circle cx="280" cy="150" r="8" fill="#F44336" stroke="#FFFFFF" stroke-width="3" />
+
+              <!-- POI Markers -->
+              <circle cx="140" cy="280" r="6" fill="#FFD600" />
+              <circle cx="220" cy="200" r="6" fill="#FFD600" />
+
+              <!-- Top UI Bar -->
+              <rect x="16" y="16" width="308" height="50" rx="14" fill="rgba(22,27,34,0.9)" stroke="rgba(255,255,255,0.1)" />
+              <text x="36" y="46" fill="#E6EDF3" font-size="14" font-weight="600">🔍 Поиск мест и POI...</text>
+
+              <!-- Bottom Stats Bar overlay -->
+              <rect x="16" y="520" width="308" height="64" rx="16" fill="rgba(13,17,23,0.92)" stroke="#4CAF50" stroke-width="1.5" />
+              <text x="32" y="546" fill="#4CAF50" font-size="13" font-weight="700">В ПУТИ: 14.8 км · 22 км/ч</text>
+              <text x="32" y="568" fill="#8B949E" font-size="12">Голосовой помощник активен</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" data-target="20">20+</div>
+        <div class="stat-label">Типов покрытия</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="9">9</div>
+        <div class="stat-label">Категорий POI</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Офлайн работа</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Языка (RU/EN/ES)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="features-section">
+    <h2 class="section-title">Почему 2circle?</h2>
+    <p class="section-subtitle">Всё, что нужно райдеру в одной автономной системе</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🗺</div>
+        <h3 class="feature-title">Офлайн Карты</h3>
+        <p class="feature-text">Векторные тайлы OpenStreetMap с четкой раскраской дорог по типу покрытия. Качайте регионы и катайтесь без связи.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔊</div>
+        <h3 class="feature-title">Голосовая Навигация</h3>
+        <p class="feature-text">Подсказки маневров и поворотов через встроенный TTS движок прямо во время поездки на экране или в наушниках.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <h3 class="feature-title">9 Категорий POI</h3>
+        <p class="feature-text">Аптеки, кафе, заправки, веломастерские и водоёмы на карте. Мгновенный поиск и построение маршрута в 1 тап.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🚴</div>
+        <h3 class="feature-title">Запись Треков</h3>
+        <p class="feature-text">Надежная запись поездок с защитой от сбоев, экспортом и импортом GPX файлов для обмена с друзьями.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">Профиль Высот</h3>
+        <p class="feature-text">Анализируйте графики подъемов, спуск, среднюю скорость и структуру покрытия перед началом маршрута.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3 class="feature-title">Сообщество & Kudos</h3>
+        <p class="feature-text">Делитесь заездами в общей ленте, получайте респекты (Kudos) с анимациями и копите достижения.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Road Surface Section -->
+  <section id="surfaces" class="surface-section">
+    <div class="surface-container">
+      <div>
+        <h2 class="section-title" style="text-align: left;">Уникальная раскраска покрытий</h2>
+        <p class="feature-text" style="font-size: 18px; margin-top: 16px;">
+          Знайте заранее, что вас ждёт на пути. Каждая дорога окрашена в уникальный цвет в зависимости от её реального состояния.
+        </p>
+
+        <div class="legend-list">
+          <div class="legend-item">
+            <div class="legend-bar" style="background: var(--green);"></div>
+            <span><strong>Асфальт</strong> (гладкий & обычный)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-bar" style="background: var(--orange);"></div>
+            <span><strong>Гравий & Гравийка</strong></span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-bar" style="background: var(--brown);"></div>
+            <span><strong>Грунтовка & Лесные тропы</strong></span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-bar" style="background: var(--red);"></div>
+            <span><strong>Песок & Бездорожье</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Surface Preview Card -->
+      <div style="background: var(--bg-secondary); padding: 24px; border-radius: 24px; border: 1px solid var(--bg-tertiary);">
+        <svg viewBox="0 0 400 300" style="width: 100%; height: auto; border-radius: 16px;">
+          <rect width="400" height="300" fill="#161B22" />
+          <path d="M 20,260 C 100,200 150,220 220,120 S 320,60 380,40" stroke="#4CAF50" stroke-width="10" fill="none" stroke-linecap="round" />
+          <path d="M 220,120 C 260,180 300,220 380,240" stroke="#FF9800" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="12 6" />
+          <path d="M 100,200 C 140,280 200,280 280,280" stroke="#8D6E63" stroke-width="6" fill="none" stroke-linecap="round" />
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshots Gallery -->
+  <section id="screenshots" class="gallery-section">
+    <h2 class="section-title">Интерфейс приложения</h2>
+    <p class="section-subtitle">Скриншоты реальной работы 2circle на Android</p>
+
+    <div class="gallery-grid">
+      <div class="screenshot-card">
+        <img src="screenshots/map.png" alt="Офлайн Карта 2circle" class="screenshot-img" loading="lazy">
+      </div>
+      <div class="screenshot-card">
+        <img src="screenshots/search.png" alt="Поиск POI и Категории" class="screenshot-img" loading="lazy">
+      </div>
+      <div class="screenshot-card">
+        <img src="screenshots/route.png" alt="Построение Маршрута и Набор высоты" class="screenshot-img" loading="lazy">
+      </div>
+      <div class="screenshot-card">
+        <img src="screenshots/feed.png" alt="Сообщество Райдеров и Kudos" class="screenshot-img" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- Download CTA Section -->
+  <section id="download" class="cta-section">
+    <div class="cta-container">
+      <h2 class="cta-title">Начните своё путешествие</h2>
+      <p class="cta-subtitle">Скачайте 2circle прямо сейчас и исследуйте новые веломаршруты без зависимости от сети.</p>
+
+      <div class="cta-download-box">
+        <div>
+          <a href="/app-debug.apk" class="btn-cta-big" download>
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Скачать APK (63 МБ)
+          </a>
+          <p style="margin-top: 14px; opacity: 0.8; font-size: 14px;">v2.0 · Android 8.0+ · Бесплатно</p>
+        </div>
+
+        <div class="qr-box">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://2circle.ru/app-debug.apk" alt="QR Code 2circle" class="qr-img">
+          <span style="font-size: 13px; opacity: 0.9;">Сканируйте для скачивания</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <div class="logo" style="margin-bottom: 12px;">
+          <svg width="24" height="24" viewBox="0 0 64 64">
+            <circle cx="24" cy="32" r="18" fill="none" stroke="#4CAF50" stroke-width="7" />
+            <circle cx="40" cy="32" r="18" fill="none" stroke="#2C5F7E" stroke-width="7" opacity="0.9" />
+          </svg>
+          <span>2circle</span>
+        </div>
+        <p>Офлайн-навигатор для велосообщества</p>
+        <p style="margin-top: 8px; font-size: 12px; opacity: 0.7;">
+          Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" style="color: inherit;">OpenStreetMap</a> contributors (ODbL)
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <a href="https://github.com/up1t3/2circle" target="_blank">GitHub</a>
+        <a href="mailto:hello@2circle.ru">Контакты</a>
+        <span style="margin-left: 20px;">© 2026 2circle</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

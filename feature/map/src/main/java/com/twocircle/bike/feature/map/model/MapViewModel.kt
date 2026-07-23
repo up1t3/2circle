@@ -7,6 +7,10 @@ import com.twocircle.bike.common.outcome.Failure
 import com.twocircle.bike.data.db.entity.RegionInstallState
 import com.twocircle.bike.data.repository.RegionsRepository
 import com.twocircle.bike.data.filesystem.RegionAssets
+import com.twocircle.bike.domain.PlannedRouteHolder
+import com.twocircle.bike.domain.RouteDraftMutator
+import com.twocircle.bike.domain.usecase.ReverseGeocode
+import com.twocircle.bike.feature.map.navigation.NavigationController
 import com.twocircle.bike.feature.map.style.MapStyleProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,6 +31,11 @@ import javax.inject.Inject
  * Regions tab), the map screen picks it up automatically without needing a manual
  * refresh. This was a bug in the original one-shot implementation that required
  * restarting the app after downloading.
+ *
+ * Also exposes the [PlannedRouteHolder] (for the route polyline overlay + the
+ * "start navigation" affordance), [NavigationController] (turn-by-turn engine), and
+ * [ReverseGeocode] (resolves names for tapped waypoints) — all @Singleton dependencies
+ * threaded through the VM so the Composable layer doesn't need its own Hilt entry point.
  */
 @HiltViewModel
 class MapViewModel @Inject constructor(
@@ -34,6 +43,10 @@ class MapViewModel @Inject constructor(
     private val regionAssets: RegionAssets,
     @ApplicationContext private val appContext: Context,
     val trackOverlay: com.twocircle.bike.domain.TrackOverlay,
+    val plannedRouteHolder: PlannedRouteHolder,
+    val routeDraft: RouteDraftMutator,
+    val navigationController: NavigationController,
+    val reverseGeocode: ReverseGeocode,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<MapUiState>(MapUiState.Loading)

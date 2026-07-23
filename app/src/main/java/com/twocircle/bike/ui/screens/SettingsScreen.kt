@@ -43,7 +43,10 @@ import com.twocircle.bike.designsystem.R
  * Settings screen — Account, Language, Theme, Units, Maps, About.
  */
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier) {
+fun SettingsScreen(
+    onNavigateToRegions: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("app_settings", Context.MODE_PRIVATE) }
     val currentLocaleList = AppCompatDelegate.getApplicationLocales()
@@ -184,6 +187,7 @@ fun SettingsScreen(modifier: Modifier = Modifier) {
             icon = Icons.Outlined.Map,
             title = stringResource(R.string.settings_maps_active_region),
             subtitle = stringResource(R.string.settings_maps_region_loaded),
+            onClick = onNavigateToRegions,
         )
 
         HorizontalDivider()
