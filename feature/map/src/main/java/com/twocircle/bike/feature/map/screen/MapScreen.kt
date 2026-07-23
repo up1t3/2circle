@@ -227,10 +227,11 @@ fun MapScreen(
                             // First paint with the current draft + editing state.
                             waypointLayer.setWaypoints(waypoints, editController.editingId)
 
-                            // Долгое нажатие -> быстрое добавление путевой точки (без редактирования)
+                            // Долгое нажатие -> добавление путевой точки (как и тап, но
+                            // даёт альтернативный жест для пользователей привычных к нему).
+                            // Если идёт редактирование (drag) — отменяет редактирование.
                             map.addOnMapLongClickListener { point ->
                                 if (editController.isEditing) {
-                                    // Long-press cancels an in-flight edit instead of adding.
                                     editController.cancel()
                                 } else {
                                     onLongPressAt(point.latitude, point.longitude)
@@ -286,17 +287,25 @@ fun MapScreen(
                                         }
                                     }
                                 }
-                                // Empty map → start placing a new waypoint at the tap.
-                                // We move the camera so the tapped point lands at screen
-                                // centre (where the reticle lives) before entering edit mode.
-                                editController.beginPlace()
-                                map.animateCamera(
-                                    CameraUpdateFactory.newLatLngZoom(
-                                        org.maplibre.android.geometry.LatLng(point.latitude, point.longitude),
-                                        map.cameraPosition.zoom.coerceAtLeast(13.0),
-                                    ),
-                                    300,
+                                // Empty map → add a waypoint immediately at the tapped
+                                // point. No reticle/edit-toolbar indirection: the user
+                                // expects "tap → pin appears". Reverse-geocoding the name
+                                // happens in the background; the pin shows instantly with
+                                // its coordinate-derived label until the name resolves.
+                                val coord = com.twocircle.bike.domain.model.Coord(point.latitude, point.longitude)
+                                val newId = viewModel.routeDraft.addWaypoint(
+                                    coord = coord,
+                                    name = null,
+                                    source = com.twocircle.bike.domain.model.Waypoint.Source.Manual,
                                 )
+                                // Resolve the name off the offline search.db; null is fine
+                                // if nothing is nearby (the pin still shows with its role label).
+                                scope.launch {
+                                    val outcome = viewModel.reverseGeocode(coord)
+                                    val name = (outcome as? com.twocircle.bike.common.outcome.Outcome.Success)
+                                        ?.value?.name
+                                    viewModel.routeDraft.updateWaypointName(newId, name)
+                                }
                                 true
                             }
 
@@ -323,6 +332,22 @@ fun MapScreen(
                     // Синхронизация путевых точек со слоем (включая editing-подсветку).
                     androidx.compose.runtime.LaunchedEffect(waypoints, editController.editingId) {
                         overlayRef.waypointLayer?.setWaypoints(waypoints, editController.editingId)
+                    }
+
+                    // Авто-построение маршрута: как только точек ≥ 2, через короткий debounce
+                    // запускаем routing engine (BRouter). Результат (полилиния) рисуется
+                    // RouteOverlayLayer автоматически через PlannedRouteHolder. Debounce нужен
+                    // чтобы не плодить запросы, когда пользователь быстро ставит серию точек.
+                    androidx.compose.runtime.LaunchedEffect(waypoints.size) {
+                        val count = waypoints.size
+                        if (count >= 2) {
+                            kotlinx.coroutines.delay(800)
+                            // Re-check after the delay — the user may have added/removed
+                            // more points while we were waiting.
+                            if (waypoints.size == count) {
+                                viewModel.routePlanner.planRoute()
+                            }
+                        }
                     }
 
                     // Подтверждение постановки/перетаскивания: берём центр экрана как

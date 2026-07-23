@@ -5,22 +5,26 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.style.expressions.Expression
+import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.sources.GeoJsonSource
 import timber.log.Timber
 
 /**
- * Renders draft-route waypoints as numbered pins on the map.
+ * Renders draft-route waypoints as **visible filled-circle pins** with a numeric/role label.
  *
- * Non-Composable — created from [BikeMap]'s onMapReady callback, same lifecycle pattern
- * as [PoiMarkerLayer]. Each waypoint is a text marker ("①"/"🅐"/"●" by role) drawn above
- * the POI layer so it stays tappable. The pin currently being dragged is rendered larger
- * with a halo via a per-feature `editing` flag.
+ * Why a [CircleLayer] (not a text "●" symbol like before): a 13px text bullet is nearly
+ * invisible against a busy vector map and gets lost under POI labels. A filled circle with
+ * a white stroke is a real, recognisable pin that reads at any zoom. The role label
+ * (S / F / ordinal) rides in a sibling [SymbolLayer] stacked on top of the circle so the
+ * number stays legible inside the pin.
  *
- * Layer order matters: waypoints sit *above* POI (added via `addLayerAbove(..., "poi-layer")`)
- * so a waypoint placed on top of a POI is the tappable target. The planned route line
- * ([RouteOverlayLayer]) is below POI, so waypoints correctly crown the line.
+ * Layer order (bottom → top): road → route → track → poi → **waypoint-circle → waypoint-label**.
+ * Both waypoint layers attach above `poi-layer` via `addLayerAbove`.
+ *
+ * The pin currently being edited (dragged) is rendered larger via a per-feature `editing`
+ * flag so the user can see which point they're moving.
  */
 class WaypointMarkerLayer(
     private val map: MapLibreMap,
@@ -28,17 +32,18 @@ class WaypointMarkerLayer(
 
     companion object {
         private const val SOURCE_ID = "waypoint-source"
-        private const val LAYER_ID = "waypoint-layer"
+        private const val CIRCLE_LAYER_ID = "waypoint-layer"
+        private const val LABEL_LAYER_ID = "waypoint-label-layer"
         private const val POI_LAYER_REF = "poi-layer"
-        // Start = blue, End = red, Via = amber — matches the route line's blue and stays
-        // distinct from POI category colours.
+        // Start = blue, End = red, Via = amber — distinct from POI category colours and
+        // matching the planned route line.
         private const val COLOR_START = "#1976D2"
         private const val COLOR_END = "#D32F2F"
         private const val COLOR_VIA = "#FFC107"
-        private const val HALO_COLOR = "#000000"
+        private const val STROKE_COLOR = "#FFFFFF"
     }
 
-    /** Wire the source/layer into the active style. Idempotent. */
+    /** Wire the source + circle/label layers into the active style. Idempotent. */
     fun start() {
         val style = map.style ?: run {
             Timber.w("WaypointMarkerLayer: map has no style yet; layer inactive")
@@ -47,29 +52,46 @@ class WaypointMarkerLayer(
         if (style.getSource(SOURCE_ID) == null) {
             val source = GeoJsonSource(SOURCE_ID)
             style.addSource(source)
-            val layer = SymbolLayer(LAYER_ID, SOURCE_ID).apply {
+
+            // Fail loud if POI isn't attached yet — z-order depends on it.
+            val poiLayer = style.getLayer(POI_LAYER_REF)
+            checkNotNull(poiLayer) {
+                "WaypointMarkerLayer: '$POI_LAYER_REF' not found. Order matters in " +
+                    "MapScreen.onMapReady (POI -> Route -> Track -> Waypoint)."
+            }
+
+            // Filled circle pin — colour and radius come from per-feature properties so
+            // role (start/end/via) and editing state can vary without rebuilding the layer.
+            val circleLayer = CircleLayer(CIRCLE_LAYER_ID, SOURCE_ID).apply {
                 setProperties(
-                    // {symbol} and {size} are written per-feature in buildGeoJson so that
-                    // role and editing state can vary without re-creating the layer.
-                    PropertyFactory.textField("● {symbol}"),
+                    PropertyFactory.circleColor(Expression.get("color")),
+                    PropertyFactory.circleRadius(Expression.get("radius")),
+                    PropertyFactory.circleStrokeColor(STROKE_COLOR),
+                    PropertyFactory.circleStrokeWidth(2f),
+                    PropertyFactory.circleOpacity(0.95f),
+                    PropertyFactory.circleStrokeOpacity(1f),
+                    // Keep pins on top of overlapping geometry but let labels breathe.
+                    PropertyFactory.circlePitchAlignment("map"),
+                )
+            }
+            style.addLayerAbove(circleLayer, POI_LAYER_REF)
+
+            // Role label centred inside the pin (S / F / 1, 2, 3, …).
+            val labelLayer = SymbolLayer(LABEL_LAYER_ID, SOURCE_ID).apply {
+                setProperties(
+                    PropertyFactory.textField(Expression.get("symbol")),
                     PropertyFactory.textFont(arrayOf("Open Sans Bold")),
-                    PropertyFactory.textSize(Expression.get("size")),
-                    PropertyFactory.textAnchor("bottom"),
-                    PropertyFactory.textOffset(arrayOf(0f, -0.4f)),
-                    PropertyFactory.textColor(Expression.get("color")),
-                    PropertyFactory.textHaloColor(HALO_COLOR),
-                    PropertyFactory.textHaloWidth(Expression.get("halo")),
+                    PropertyFactory.textSize(11f),
+                    PropertyFactory.textColor("#FFFFFF"),
+                    PropertyFactory.textHaloColor("#000000"),
+                    PropertyFactory.textHaloWidth(0.5f),
+                    PropertyFactory.textAnchor("center"),
                     PropertyFactory.textAllowOverlap(true),
                     PropertyFactory.textIgnorePlacement(true),
                 )
             }
-            // Sit above POI markers so waypoints stay the tappable target when overlapping.
-            // Depends on poi-layer being attached first; order matters in MapScreen.onMapReady.
-            val poiLayer = style.getLayer(POI_LAYER_REF)
-            checkNotNull(poiLayer) {
-                "WaypointMarkerLayer: '$POI_LAYER_REF' not found in style. Order matters in MapScreen.onMapReady (POI -> Route -> Track -> Waypoint)."
-            }
-            style.addLayerAbove(layer, POI_LAYER_REF)
+            // Label sits directly above its circle pin.
+            style.addLayerAbove(labelLayer, CIRCLE_LAYER_ID)
         }
         render(emptyList(), editingId = null)
     }
@@ -79,7 +101,7 @@ class WaypointMarkerLayer(
         render(waypoints, editingId)
     }
 
-    /** Remove markers. Keeps the layer attached. */
+    /** Remove markers. Keeps the layers attached. */
     fun clear() = setWaypoints(emptyList())
 
     /** No-op for symmetry with [TrackOverlayLayer]. */
@@ -106,7 +128,7 @@ class WaypointMarkerLayer(
             val geom = JSONObject()
                 .put("type", "Point")
                 .put("coordinates", JSONArray().put(wp.coord.lon).put(wp.coord.lat))
-            // Symbol carries role + ordinal so users see "Start / 2 / 3 / End".
+            // Role label: S = start, F = finish, otherwise the ordinal (1-based for vias).
             val symbol = when (wp.role) {
                 Waypoint.Role.Start -> "S"
                 Waypoint.Role.End -> "F"
@@ -117,13 +139,13 @@ class WaypointMarkerLayer(
                 Waypoint.Role.End -> COLOR_END
                 Waypoint.Role.Via -> COLOR_VIA
             }
+            // Pin radius: 9px normally, 12px while being dragged (clearer affordance).
+            val radius = if (editing) 12f else 9f
             val props = JSONObject()
                 .put("id", wp.id.value)
                 .put("symbol", symbol)
                 .put("color", color)
-                // Editing pin is larger and gets a thicker halo for affordance.
-                .put("size", if (editing) 16f else 13f)
-                .put("halo", if (editing) 2.0f else 1.2f)
+                .put("radius", radius)
             val feature = JSONObject()
                 .put("type", "Feature")
                 .put("geometry", geom)

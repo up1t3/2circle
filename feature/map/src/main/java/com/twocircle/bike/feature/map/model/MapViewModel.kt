@@ -9,6 +9,7 @@ import com.twocircle.bike.data.repository.RegionsRepository
 import com.twocircle.bike.data.filesystem.RegionAssets
 import com.twocircle.bike.domain.PlannedRouteHolder
 import com.twocircle.bike.domain.RouteDraftMutator
+import com.twocircle.bike.domain.RoutePlanner
 import com.twocircle.bike.domain.usecase.ReverseGeocode
 import com.twocircle.bike.feature.map.navigation.NavigationController
 import com.twocircle.bike.feature.map.style.MapStyleProvider
@@ -45,6 +46,7 @@ class MapViewModel @Inject constructor(
     val trackOverlay: com.twocircle.bike.domain.TrackOverlay,
     val plannedRouteHolder: PlannedRouteHolder,
     val routeDraft: RouteDraftMutator,
+    val routePlanner: RoutePlanner,
     val navigationController: NavigationController,
     val reverseGeocode: ReverseGeocode,
 ) : ViewModel() {

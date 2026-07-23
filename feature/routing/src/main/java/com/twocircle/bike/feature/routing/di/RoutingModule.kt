@@ -84,4 +84,9 @@ abstract class RoutingEngineModule {
     @Binds
     @Singleton
     abstract fun bindRouteDraftMutator(impl: com.twocircle.bike.feature.routing.screen.RouteDraftRepository): com.twocircle.bike.domain.RouteDraftMutator
+
+    /** Exposes route planning to :feature:map (auto-plan) without a module cycle. See [RoutePlanner]. */
+    @Binds
+    @Singleton
+    abstract fun bindRoutePlanner(impl: com.twocircle.bike.feature.routing.screen.RouteDraftRepository): com.twocircle.bike.domain.RoutePlanner
 }

@@ -1,13 +1,39 @@
 package com.twocircle.bike.feature.routing.screen
 
 import com.google.common.truth.Truth.assertThat
+import com.twocircle.bike.common.outcome.Outcome
 import com.twocircle.bike.domain.model.Coord
+import com.twocircle.bike.domain.model.Route
+import com.twocircle.bike.domain.model.RoutePlanId
+import com.twocircle.bike.domain.model.RoutingProfile
 import com.twocircle.bike.domain.model.Waypoint
+import com.twocircle.bike.feature.routing.engine.RoutingEngine
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class RouteDraftRepositoryTest {
 
-    private val repo = RouteDraftRepository()
+    /**
+     * Fake engine that always succeeds with an empty route. Enough for draft-state tests
+     * (the real engine is exercised in its own BRouter integration tests). Using a hand
+     * stub instead of Mockito keeps the unit-test module dependency-free.
+     */
+    private val fakeEngine = object : RoutingEngine {
+        override suspend fun route(
+            waypoints: List<Waypoint>,
+            profile: RoutingProfile,
+            planId: RoutePlanId,
+        ): Outcome<Route> = Outcome.Success(
+            Route(
+                id = planId,
+                profile = profile,
+                segments = emptyList(),
+                waypoints = waypoints,
+            ),
+        )
+    }
+
+    private val repo = RouteDraftRepository(engine = fakeEngine)
 
     @Test
     fun `first added waypoint becomes Start`() {
@@ -102,6 +128,29 @@ class RouteDraftRepositoryTest {
         assertThat(repo.plannedRoute.value).isNotNull()
         repo.clearPlannedRoute()
         assertThat(repo.plannedRoute.value).isNull()
+    }
+
+    @Test
+    fun `planRoute is a no-op with fewer than two waypoints`() {
+        repo.addWaypoint(Coord(50.0, 30.0), "A", Waypoint.Source.Manual)
+        repo.planRoute()
+        // Give the (cancelled-before-started) coroutine a chance to not run.
+        runBlocking { kotlinx.coroutines.delay(50) }
+        assertThat(repo.plannedRoute.value).isNull()
+    }
+
+    @Test
+    fun `planRoute publishes a route through the engine when waypoints suffice`() {
+        repo.addWaypoint(Coord(50.0, 30.0), "A", Waypoint.Source.Manual)
+        repo.addWaypoint(Coord(51.0, 31.0), "B", Waypoint.Source.Manual)
+
+        repo.planRoute()
+        // The repo plans on Dispatchers.IO; wait for it to settle.
+        kotlinx.coroutines.runBlocking { kotlinx.coroutines.delay(200) }
+
+        val planned = repo.plannedRoute.value
+        assertThat(planned).isNotNull()
+        assertThat(planned!!.waypoints).hasSize(2)
     }
 
     private fun stubRoute(): com.twocircle.bike.domain.model.Route =

@@ -1,15 +1,27 @@
 package com.twocircle.bike.feature.routing.screen
 
+import com.twocircle.bike.common.outcome.onFailure
+import com.twocircle.bike.common.outcome.onSuccess
 import com.twocircle.bike.domain.PlannedRouteHolder
 import com.twocircle.bike.domain.RouteDraftMutator
+import com.twocircle.bike.domain.RoutePlanner
 import com.twocircle.bike.domain.model.Coord
 import com.twocircle.bike.domain.model.Route
+import com.twocircle.bike.domain.model.RoutePlanId
 import com.twocircle.bike.domain.model.RoutingProfile
 import com.twocircle.bike.domain.model.Waypoint
 import com.twocircle.bike.domain.model.WaypointId
+import com.twocircle.bike.feature.routing.engine.RoutingEngine
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,11 +42,21 @@ import javax.inject.Singleton
  * / POI "Add to route" all call [addWaypoint] here, without navigating
  * away from the current screen.
  *
- * Implements [PlannedRouteHolder] so :feature:map can render the planned route's
- * polyline without depending on :feature:routing — bound in [RoutingModule].
+ * Implements [PlannedRouteHolder] (so :feature:map can render the planned route's
+ * polyline), [RouteDraftMutator] (add/move/rename waypoints), and [RoutePlanner]
+ * (auto-plan when waypoints change) — all without :feature:map depending on
+ * :feature:routing. Bound in [RoutingModule].
  */
 @Singleton
-class RouteDraftRepository @Inject constructor() : PlannedRouteHolder, RouteDraftMutator {
+class RouteDraftRepository @Inject constructor(
+    private val engine: RoutingEngine,
+) : PlannedRouteHolder, RouteDraftMutator, RoutePlanner {
+
+    // Application-scoped coroutines: the repo is a singleton, so this scope lives for the
+    // whole process. Used for background routing; the previous in-flight plan is cancelled
+    // when a new one starts (debounce-friendly for rapid waypoint edits).
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var planJob: Job? = null
 
     private val _waypoints = MutableStateFlow<List<Waypoint>>(emptyList())
     override val waypoints: StateFlow<List<Waypoint>> = _waypoints.asStateFlow()
@@ -101,6 +123,35 @@ class RouteDraftRepository @Inject constructor() : PlannedRouteHolder, RouteDraf
     /** Switch routing profile. */
     fun setProfile(profile: RoutingProfile) {
         _profile.value = profile
+    }
+
+    /**
+     * Plan a route through the current draft waypoints via the routing engine.
+     *
+     * Implements [RoutePlanner] — called from :feature:map (auto-plan after ≥2 waypoints)
+     * and :feature:routing's RouteBuilderViewModel (manual "Plan" button). Cancels any
+     * previous in-flight plan first so rapid waypoint edits don't queue stale work.
+     * On success the resulting [Route] is published via [publishPlannedRoute], which the
+     * map's [com.twocircle.bike.feature.map.view.RouteOverlayLayer] observes.
+     */
+    override fun planRoute() {
+        val wps = _waypoints.value
+        if (wps.size < 2) return
+        val activeProfile = _profile.value
+        planJob?.cancel()
+        planJob = scope.launch {
+            val planId = RoutePlanId(UUID.randomUUID().toString())
+            engine.route(wps, activeProfile, planId)
+                .onSuccess { route ->
+                    publishPlannedRoute(route)
+                    Timber.i("Auto-plan ok: %d waypoints, %.1f km", wps.size, route.distanceMeters / 1000)
+                }
+                .onFailure { failure ->
+                    Timber.w("Auto-plan failed: %s", failure)
+                    // Keep the last successful route visible — a failed re-plan shouldn't
+                    // blank the line the user is looking at.
+                }
+        }
     }
 
     /** Clear all waypoints (e.g. after a successful plan or explicit "clear"). */
