@@ -27,13 +27,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,6 +93,11 @@ fun RouteBuilderScreen(
     val profile by viewModel.profile.collectAsStateWithLifecycle()
     val planState by viewModel.planState.collectAsStateWithLifecycle()
 
+    // Save-route dialog state. The text field is pre-filled with the auto-generated
+    // "first → last" name so the user can edit it in place rather than retype.
+    var showSaveDialog by remember { mutableStateOf(false) }
+    var routeName by remember { mutableStateOf("") }
+
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         androidx.compose.foundation.layout.Row(
             modifier = Modifier.fillMaxWidth(),
@@ -122,16 +131,54 @@ fun RouteBuilderScreen(
             onPlan = viewModel::planRoute,
         )
 
-        // Save button — visible when a route is planned. Persists the route to Room
-        // so it survives app restart and can be re-loaded from "Saved Routes".
+        // Save button — visible when a route is planned. Opens a naming dialog so the
+        // user can give the route a memorable title (e.g. "Карельский перешеек loop")
+        // instead of the auto-generated "A → B". Persists to Room after confirmation.
         if (planState is PlanState.Planned) {
             androidx.compose.material3.OutlinedButton(
-                onClick = { viewModel.saveCurrentRoute() },
+                onClick = {
+                    // Pre-fill with the auto-generated suggestion (first → last names).
+                    val first = waypoints.firstOrNull()?.name
+                    val last = waypoints.lastOrNull()?.name
+                    routeName = if (first != null && last != null) "$first → $last" else ""
+                    showSaveDialog = true
+                },
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
             ) {
                 Text(stringResource(com.twocircle.bike.designsystem.R.string.route_action_save))
             }
         }
+    }
+
+    // Naming dialog — OutlinedTextField pre-filled with the suggested name, OK saves
+    // (empty input falls back to the auto-name inside the VM), Cancel dismisses.
+    if (showSaveDialog) {
+        AlertDialog(
+            onDismissRequest = { showSaveDialog = false },
+            title = { Text(stringResource(R.string.route_save_dialog_title)) },
+            text = {
+                OutlinedTextField(
+                    value = routeName,
+                    onValueChange = { routeName = it },
+                    label = { Text(stringResource(R.string.route_save_dialog_label)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.saveCurrentRoute(routeName.ifBlank { null })
+                    showSaveDialog = false
+                }) {
+                    Text(stringResource(R.string.action_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSaveDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
     }
 }
 

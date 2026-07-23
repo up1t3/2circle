@@ -16,8 +16,8 @@ android {
         applicationId = "com.twocircle.bike"
         minSdk = 26
         targetSdk = 35
-        versionCode = 12
-        versionName = "0.8.4"
+        versionCode = 13
+        versionName = "0.8.5"
 
         // v1 UI locales. Default (values/) is English; ru and es ship explicitly.
         // resConfigs also strips unused locales bundled by transitive deps (Hilt, Room,

@@ -45,6 +45,8 @@
     <string name="route_need_more_hint">Añade al menos un punto más para trazar la ruta</string>
     <string name="waypoint_added">Punto añadido</string>
     <string name="route_action_save">Guardar ruta</string>
+    <string name="route_save_dialog_title">Guardar ruta</string>
+    <string name="route_save_dialog_label">Nombre de la ruta</string>
     <string name="saved_routes_title">Rutas guardadas</string>
     <string name="saved_routes_empty">Aún no hay rutas guardadas. Planifica y guarda una ruta.</string>
     <string name="route_waypoint_coord_fmt">%1$.4f, %2$.4f</string>

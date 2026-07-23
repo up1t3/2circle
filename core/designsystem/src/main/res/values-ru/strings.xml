@@ -50,6 +50,8 @@
     <string name="route_need_more_hint">Добавьте ещё хотя бы одну точку для построения маршрута</string>
     <string name="waypoint_added">Точка добавлена</string>
     <string name="route_action_save">Сохранить маршрут</string>
+    <string name="route_save_dialog_title">Сохранить маршрут</string>
+    <string name="route_save_dialog_label">Название маршрута</string>
     <string name="saved_routes_title">Сохранённые маршруты</string>
     <string name="saved_routes_empty">Нет сохранённых маршрутов. Постройте и сохраните маршрут.</string>
     <string name="route_waypoint_coord_fmt">%1$.4f, %2$.4f</string>

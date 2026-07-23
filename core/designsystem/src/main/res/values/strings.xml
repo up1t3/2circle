@@ -68,6 +68,8 @@
     <string name="route_need_more_hint">Add at least one more point to plan a route</string>
     <string name="waypoint_added">Waypoint added</string>
     <string name="route_action_save">Save route</string>
+    <string name="route_save_dialog_title">Save route</string>
+    <string name="route_save_dialog_label">Route name</string>
     <string name="saved_routes_title">Saved routes</string>
     <string name="saved_routes_empty">No saved routes yet. Plan a route and save it.</string>
     <string name="route_waypoint_coord_fmt">%1$.4f, %2$.4f</string>

@@ -118,7 +118,7 @@ class RouteBuilderViewModel @Inject constructor(
      * can be re-loaded later. Without this the entire route_plans/waypoints/route_segments
      * schema is dead code — written nowhere, read nowhere.
      */
-    fun saveCurrentRoute() {
+    fun saveCurrentRoute(customName: String? = null) {
         val wps = waypoints.value
         if (wps.size < 2) return
         val activeProfile = profile.value
@@ -127,9 +127,13 @@ class RouteBuilderViewModel @Inject constructor(
         viewModelScope.launch {
             val now = System.currentTimeMillis()
             val planId = UUID.randomUUID().toString()
-            val name = wps.firstOrNull()?.name?.let { first ->
-                wps.lastOrNull()?.name?.let { last -> "$first → $last" }
-            } ?: "Route ${now}"
+            // User-provided name wins; fall back to "first → last" of resolved waypoint
+            // names, then to a timestamped default so the row is never nameless.
+            val name = customName?.trim()?.takeIf { it.isNotEmpty() }
+                ?: wps.firstOrNull()?.name?.let { first ->
+                    wps.lastOrNull()?.name?.let { last -> "$first → $last" }
+                }
+                ?: "Route ${now}"
 
             val plan = RoutePlanEntity(
                 id = planId,
